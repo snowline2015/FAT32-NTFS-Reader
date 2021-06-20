@@ -4,9 +4,11 @@
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
+#include <sstream>
+
 using namespace std;
 
-typedef struct BootSectorFAT32
+struct FAT32
 {
     byte OEM[3];
     byte Version[8];
@@ -42,7 +44,6 @@ typedef struct BootSectorFAT32
 };
 
 int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512]);
-
-
-
+int buffToInteger(byte* buffer);
+unsigned int reversedBytes(uint8_t* byte, unsigned int count);
 #endif

@@ -2,9 +2,9 @@
 
 int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512])
 {
-    BootSectorFAT32 ok;
+    BootSectorFAT32 fat32;
     int retCode = 0;
-    DWORD bytesRead;
+    DWORD bytesRead, bytesWrite;
     HANDLE device = NULL;
 
     device = CreateFile(drive,    // Drive to open
@@ -23,44 +23,72 @@ int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512])
 
     SetFilePointer(device, readPoint, NULL, FILE_BEGIN);//Set a Point to Read
 
-    bool success = ReadFile(device, sector, 512, &bytesRead, NULL);
-    if (!success)
+    if (!ReadFile(device, sector, 512, &bytesRead, NULL))
     {
         printf("ReadFile: %u\n", GetLastError());
     }
     else
     {
-        memcpy(ok.OEM, sector, sizeof(ok.OEM));
-        memcpy(ok.Version, sector + 3, sizeof(ok.Version));
-        memcpy(ok.BytePerSector, sector + 11, sizeof(ok.BytePerSector));
-        memcpy(ok.SectorPerCluster, sector + 13, sizeof(ok.SectorPerCluster));
-        memcpy(ok.ReservedSector, sector + 14, sizeof(ok.ReservedSector));
-        memcpy(ok.FatNum, sector + 16, sizeof(ok.FatNum));
-        memcpy(ok.EntryRDET, sector + 17, sizeof(ok.EntryRDET));
-        memcpy(ok.SectorVol, sector + 19, sizeof(ok.SectorVol));
-        memcpy(ok.DeviceType, sector + 21, sizeof(ok.DeviceType));
-        memcpy(ok.SectorPerFat, sector + 22, sizeof(ok.SectorPerFat));
-        memcpy(ok.SectorPerTrack, sector + 24, sizeof(ok.SectorPerTrack));
-        memcpy(ok.HeadPerDisk, sector + 26, sizeof(ok.HeadPerDisk));
+        memcpy(fat32.OEM, sector, sizeof(fat32.OEM));
+        memcpy(fat32.Version, sector + 3, sizeof(fat32.Version));
+        memcpy(fat32.BytePerSector, sector + 11, sizeof(fat32.BytePerSector));
+        memcpy(fat32.SectorPerCluster, sector + 13, sizeof(fat32.SectorPerCluster));
+        memcpy(fat32.ReservedSector, sector + 14, sizeof(fat32.ReservedSector));
+        memcpy(fat32.FatNum, sector + 16, sizeof(fat32.FatNum));
+        memcpy(fat32.EntryRDET, sector + 17, sizeof(fat32.EntryRDET));
+        memcpy(fat32.SectorVol, sector + 19, sizeof(fat32.SectorVol));
+        memcpy(fat32.DeviceType, sector + 21, sizeof(fat32.DeviceType));
+        memcpy(fat32.SectorPerFat, sector + 22, sizeof(fat32.SectorPerFat));
+        memcpy(fat32.SectorPerTrack, sector + 24, sizeof(fat32.SectorPerTrack));
+        memcpy(fat32.HeadPerDisk, sector + 26, sizeof(fat32.HeadPerDisk));
 
-        memcpy(ok.Distance, sector + 28, sizeof(ok.Distance));
-        memcpy(ok.VolSize, sector + 32, sizeof(ok.VolSize));
-        memcpy(ok.SizePerFAT, sector + 36, sizeof(ok.SizePerFAT));
-        memcpy(ok.Bit8On, sector + 40, sizeof(ok.Bit8On));
-        memcpy(ok.FAT32Ver, sector + 42, sizeof(ok.FAT32Ver));
-        memcpy(ok.FirstRDETCluster, sector + 44, sizeof(ok.FirstRDETCluster));
-        memcpy(ok.AddiInfoSector, sector + 48, sizeof(ok.AddiInfoSector));
-        memcpy(ok.SaveBootSector, sector + 50, sizeof(ok.SaveBootSector));
-        memcpy(ok.DanhRieng, sector + 52, sizeof(ok.DanhRieng));
+        memcpy(fat32.Distance, sector + 28, sizeof(fat32.Distance));
+        memcpy(fat32.VolSize, sector + 32, sizeof(fat32.VolSize));
+        memcpy(fat32.SizePerFAT, sector + 36, sizeof(fat32.SizePerFAT));
+        memcpy(fat32.Bit8On, sector + 40, sizeof(fat32.Bit8On));
+        memcpy(fat32.FAT32Ver, sector + 42, sizeof(fat32.FAT32Ver));
+        memcpy(fat32.FirstRDETCluster, sector + 44, sizeof(fat32.FirstRDETCluster));
+        memcpy(fat32.AddiInfoSector, sector + 48, sizeof(fat32.AddiInfoSector));
+        memcpy(fat32.SaveBootSector, sector + 50, sizeof(fat32.SaveBootSector));
+        memcpy(fat32.DanhRieng, sector + 52, sizeof(fat32.DanhRieng));
 
-        memcpy(ok.PhysicDisk, sector + 64, sizeof(ok.PhysicDisk));
-        memcpy(ok.Danhrieng, sector + 65, sizeof(ok.Danhrieng));
-        memcpy(ok.KiHieuNhanDienOS, sector + 66, sizeof(ok.KiHieuNhanDienOS));
-        memcpy(ok.SerialNumber, sector + 67, sizeof(ok.SerialNumber));
-        memcpy(ok.VolumeLabel, sector + 71, sizeof(ok.VolumeLabel));
-        memcpy(ok.FATType, sector + 82, sizeof(ok.FATType));
-        memcpy(ok.BootProgram, sector + 90, sizeof(ok.BootProgram));
-        memcpy(ok.DauHieuKetThuc, sector + 510, sizeof(ok.DauHieuKetThuc));
-        printf("Success!\n");
+        memcpy(fat32.PhysicDisk, sector + 64, sizeof(fat32.PhysicDisk));
+        memcpy(fat32.Danhrieng, sector + 65, sizeof(fat32.Danhrieng));
+        memcpy(fat32.KiHieuNhanDienOS, sector + 66, sizeof(fat32.KiHieuNhanDienOS));
+        memcpy(fat32.SerialNumber, sector + 67, sizeof(fat32.SerialNumber));
+        memcpy(fat32.VolumeLabel, sector + 71, sizeof(fat32.VolumeLabel));
+        memcpy(fat32.FATType, sector + 82, sizeof(fat32.FATType));
+        memcpy(fat32.BootProgram, sector + 90, sizeof(fat32.BootProgram));
+        memcpy(fat32.DauHieuKetThuc, sector + 510, sizeof(fat32.DauHieuKetThuc));
     }
+        
+    int value;
+    value = reversedBytes(fat32.VolSize, sizeof(fat32.VolSize));
+    cout << value << endl;
+
+    printf("Bootstrap: %s\nSectors per cluster: %d", fat32.OEM, fat32.VolSize);
+}
+
+//int buffToInteger(byte* buffer)
+//{
+//    //int a = static_cast<int>(static_cast<unsigned char>(buffer[3]) << 24 |
+//    //    static_cast<unsigned char>(buffer[2]) << 16 |
+//    //    static_cast<unsigned char>(buffer[1]) << 8 |
+//    //    static_cast<unsigned char>(buffer[0]));
+//    //return a;
+//
+//    int Int32 = 0;
+//    Int32 = (Int32 << 8) + buffer[3];
+//    Int32 = (Int32 << 8) + buffer[2];
+//    Int32 = (Int32 << 8) + buffer[1];
+//    Int32 = (Int32 << 8) + buffer[0];
+//    return Int32;
+//}
+
+unsigned int reversedBytes(uint8_t* byte, unsigned int count) {
+    unsigned int result = 0;
+    for (int i = count - 1; i >= 0; i--) 
+        result = (result << 8) | byte[i];
+    
+    return result;
 }
