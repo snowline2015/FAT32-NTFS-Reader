@@ -64,8 +64,8 @@ namespace GUI {
 			this->treeView1 = (gcnew System::Windows::Forms::TreeView());
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->comboBox1 = (gcnew System::Windows::Forms::ComboBox());
-			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->listView1 = (gcnew System::Windows::Forms::ListView());
+			this->label3 = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->BeginInit();
 			this->splitContainer1->Panel1->SuspendLayout();
 			this->splitContainer1->Panel2->SuspendLayout();
@@ -80,7 +80,7 @@ namespace GUI {
 			// 
 			// splitContainer1.Panel1
 			// 
-			this->splitContainer1->Panel1->BackColor = System::Drawing::Color::WhiteSmoke;
+			this->splitContainer1->Panel1->BackColor = System::Drawing::Color::White;
 			this->splitContainer1->Panel1->Controls->Add(this->label2);
 			this->splitContainer1->Panel1->Controls->Add(this->label1);
 			this->splitContainer1->Panel1->Controls->Add(this->treeView1);
@@ -104,7 +104,7 @@ namespace GUI {
 			this->label2->Location = System::Drawing::Point(92, 418);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(13, 20);
-			this->label2->TabIndex = 4;
+			this->label2->TabIndex = 5;
 			this->label2->Text = L" ";
 			// 
 			// label1
@@ -115,18 +115,20 @@ namespace GUI {
 			this->label1->Location = System::Drawing::Point(26, 416);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(51, 23);
-			this->label1->TabIndex = 3;
+			this->label1->TabIndex = 4;
 			this->label1->Text = L"Path:";
 			this->label1->Click += gcnew System::EventHandler(this, &GUI::label1_Click);
 			// 
 			// treeView1
 			// 
-			this->treeView1->BackColor = System::Drawing::Color::WhiteSmoke;
+			this->treeView1->BackColor = System::Drawing::Color::White;
 			this->treeView1->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->treeView1->Font = (gcnew System::Drawing::Font(L"Segoe UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
 			this->treeView1->Location = System::Drawing::Point(30, 61);
 			this->treeView1->Name = L"treeView1";
 			this->treeView1->Size = System::Drawing::Size(331, 343);
-			this->treeView1->TabIndex = 2;
+			this->treeView1->TabIndex = 3;
 			// 
 			// button1
 			// 
@@ -140,7 +142,7 @@ namespace GUI {
 			this->button1->Location = System::Drawing::Point(275, 15);
 			this->button1->Name = L"button1";
 			this->button1->Size = System::Drawing::Size(86, 28);
-			this->button1->TabIndex = 1;
+			this->button1->TabIndex = 2;
 			this->button1->Text = L"Choose";
 			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &GUI::button1_Click);
@@ -152,19 +154,8 @@ namespace GUI {
 			this->comboBox1->Location = System::Drawing::Point(30, 16);
 			this->comboBox1->Name = L"comboBox1";
 			this->comboBox1->Size = System::Drawing::Size(229, 24);
-			this->comboBox1->TabIndex = 0;
+			this->comboBox1->TabIndex = 1;
 			this->comboBox1->SelectedIndexChanged += gcnew System::EventHandler(this, &GUI::comboBox1_SelectedIndexChanged);
-			// 
-			// label3
-			// 
-			this->label3->AutoSize = true;
-			this->label3->Font = (gcnew System::Drawing::Font(L"Segoe UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
-			this->label3->Location = System::Drawing::Point(146, 22);
-			this->label3->Name = L"label3";
-			this->label3->Size = System::Drawing::Size(106, 23);
-			this->label3->TabIndex = 0;
-			this->label3->Text = L"Information";
 			// 
 			// listView1
 			// 
@@ -176,13 +167,26 @@ namespace GUI {
 			this->listView1->Location = System::Drawing::Point(42, 61);
 			this->listView1->Name = L"listView1";
 			this->listView1->Size = System::Drawing::Size(323, 343);
-			this->listView1->TabIndex = 1;
+			this->listView1->TabIndex = 3;
 			this->listView1->UseCompatibleStateImageBehavior = false;
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Font = (gcnew System::Drawing::Font(L"Segoe UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->label3->Location = System::Drawing::Point(152, 35);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(106, 23);
+			this->label3->TabIndex = 1;
+			this->label3->Text = L"Information";
+			this->label3->Click += gcnew System::EventHandler(this, &GUI::label3_Click);
 			// 
 			// GUI
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackColor = System::Drawing::Color::WhiteSmoke;
 			this->ClientSize = System::Drawing::Size(782, 453);
 			this->Controls->Add(this->splitContainer1);
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
@@ -204,6 +208,8 @@ namespace GUI {
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 }
 private: System::Void label1_Click(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void label3_Click(System::Object^ sender, System::EventArgs^ e) {
 }
 };
 }
