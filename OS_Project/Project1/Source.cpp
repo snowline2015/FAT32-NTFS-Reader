@@ -1,4 +1,5 @@
-#include "Header.h"
+#include "FAT32.h"
+#include "NTFS.h"
 
 
 int main(int argc, char** argv)
