@@ -31,9 +31,7 @@ int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
     }
     else
     {
-        printf("Succeed in reading bootsector !\n");
-
-        memset(&bs32, 0, sizeof(bs32));
+        memset(&bs32, 0, 512);
 
         memcpy(&bs32.JUMP, sector, sizeof(bs32.JUMP));
         memcpy(&bs32.OEM, sector + 3, sizeof(bs32.OEM));
@@ -66,56 +64,8 @@ int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
         memcpy(&bs32.FATID, sector + 82, sizeof(bs32.FATID));
         memcpy(&bs32.BootProgram, sector + 90, sizeof(bs32.BootProgram));
         memcpy(&bs32.EndSignature, sector + 510, sizeof(bs32.EndSignature));
-
-        memset(&bs32, 0, sizeof(bs32));
     }
-    
-    //distance from begine until Root Directory or content of partetion
-    ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32;
-    distance *= bs32.BytePerSector; //convert distance number to bytes value
-
-    SetFilePointer(device, distance, NULL, FILE_BEGIN);//set pointer to root directory begine or begine of data
-
-    int clusterSize = bs32.BytePerSector * bs32.SectorPerCluster; //cluster size 
-    int NumberOfEntries = clusterSize / sizeof(RDETFAT32); //number of record inside cluster
-    RDETFAT32* root = new RDETFAT32[NumberOfEntries];//descripe the partetion
-    if (!ReadFile(device, (BYTE*)root, clusterSize, &bytesRead, 0)) 
-    {
-        printf("ReadFile: %u\n", GetLastError());
-        return 1;
-    }
-    else {
-        DWORD clusterNumber;
-        for (int i = 0; i < NumberOfEntries; i++)
-        {
-            if (root[i].FileName[0] == 0)   // entry trong
-                break;
-            if (root[i].FileName[0] == 0xE5)    // tap tin da bi xoa
-                continue;
-            if ((root[i].FileAttributes & 0xF) == 0xF)
-                continue;
-            for (int j = 0; j < 8; j++)
-                cout << root[i].FileName[j];
-            if ((root[i].FileAttributes & 0x10) != 0x10) {
-                cout << ".";
-                for (int j = 8; j < 11; j++)
-                    cout << root[i].FileName[j];
-            }
-            if ((root[i].FileAttributes & 0x10) == 0x10) {
-                cout << "\t<Folder>";
-            }
-            else {
-
-                cout << "\t<File>";
-            }
-            clusterNumber = root[i].FirstClusterHigh << 16;
-            clusterNumber |= root[i].FirstClusterLow;
-            cout << "\t" << root[i].FileSize << "bytes" << "\t" << clusterNumber << "cluster" << endl;
-        }
-    }
-
-    CloseHandle(device);
-        
+    CloseHandle(device);   
     return 0;
 }
 
@@ -143,23 +93,14 @@ unsigned int reversedBytes(uint8_t* byte) {
     return result;
 }
 
-/*
-int ReadRDETFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
+
+int ReadRDETFAT32(LPCWSTR drive)
 {
-    RDETFAT32 bs32;
     int retCode = 0;
-    DWORD bytesRead, dwFilePointer;
+    DWORD bytesRead;
     HANDLE device = NULL;
-
-    //if (!AfxWinInit(::GetModuleHandle(NULL), NULL,
-    //    ::GetCommandLine(), 0))
-    //{
-    //    // TODO: change error code to suit your needs
-    //    cerr << _T("Fatal Error: MFC initialization failed") << endl;
-    //    retCode = 1;
-    //}
-
-    memset(&sector, 0, 512);
+    LongFileDir LFD;
+    string SubName = "";
 
     device = CreateFile(drive,    // Drive to open
         GENERIC_READ,           // Access mode
@@ -175,6 +116,120 @@ int ReadRDETFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
         return 1;
     }
 
+    // SB + SF * NF
+    ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32;
+    distance *= bs32.BytePerSector; // convert to bytes
+
+    SetFilePointer(device, distance, NULL, FILE_BEGIN);
+
+    int clusterSize = bs32.BytePerSector * bs32.SectorPerCluster;   // cluster size 
+    int NumberOfEntries = clusterSize / sizeof(RDETFAT32);  // number of record inside cluster
+    RDETFAT32* root = new RDETFAT32[NumberOfEntries];   // descripe the partition
+
+    if (!ReadFile(device, (BYTE*)root, clusterSize, &bytesRead, 0))
+    {
+        printf("ReadFile: %u\n", GetLastError());
+        return 1;
+    }
+    else {
+        DWORD clusterNumber;
+        for (int i = 0; i < NumberOfEntries; i++)
+        {
+            // Xet entry chinh
+            if (root[i].FileName[0] == 0)   
+                continue;
+            if (root[i].FileName[0] == 0xE5)   
+                continue;
+
+            // Xet entry phu
+            if (root[i].FileAttributes == 0x0F) {
+                memset(&LFD, 0, sizeof(LFD));
+                memcpy(&LFD, &root[i], sizeof(LFD));
+                
+                string temp = "";
+                for (int j = 0; j < 3; j++) {
+                    if (j == 0) {
+                        for (int k = 0; k < sizeof(LFD.Name1); k++)
+                            if (32 <= (int)LFD.Name1[k] && (int)LFD.Name1[k] <= 127)
+                                temp += LFD.Name1[k];
+                    }
+                    else if (j == 1) {
+                        for (int k = 0; k < sizeof(LFD.Name2); k++)
+                            if (32 <= (int)LFD.Name2[k] && (int)LFD.Name2[k] <= 127)
+                                temp += LFD.Name2[k];
+                    }
+                    else {
+                        for (int k = 0; k < sizeof(LFD.Name3); k++)
+                            if (32 <= (int)LFD.Name3[k] && (int)LFD.Name3[k] <= 127)
+                                temp += LFD.Name3[k];
+                    }
+                }
+
+                SubName.insert(0, temp);
+                continue;
+                
+            }
+
+            if (SubName != "") {
+                cout << SubName;
+                SubName = "";
+            }
+            else {
+                for (int j = 0; j < 8; j++)
+                    cout << root[i].FileName[j];
+                if ((root[i].FileAttributes & 0x10) != 0x10) {
+                    cout << ".";
+                    for (int j = 8; j < 11; j++)
+                        cout << root[i].FileName[j];
+                }
+            }
+
+            if (root[i].FileAttributes == 0x01)
+                printf("\t<Read Only>");
+            if (root[i].FileAttributes == 0x02)
+                printf("\t<Hidden>");
+            if (root[i].FileAttributes == 0x04)
+                printf("\t<System>");
+            if (root[i].FileAttributes == 0x08)
+                printf("\t<Volume Label>");
+            if (root[i].FileAttributes == 0x10)
+                printf("\t<Directory>");
+            if (root[i].FileAttributes == 0x20)
+                printf("\t<Archive>");
+
+            WORD nYear = (root[i].CreatedDate >> 9);
+            WORD nMonth = (root[i].CreatedDate << 7);
+            nMonth = nMonth >> 12;
+            WORD nDay = (root[i].CreatedDate << 11);
+            nDay = nDay >> 11;
+            printf("\tCreate Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+
+            nYear = (root[i].LastModifiedDate >> 9);
+            nMonth = (root[i].LastModifiedDate << 7);
+            nMonth = nMonth >> 12;
+            nDay = (root[i].LastModifiedDate << 11);
+            nDay = nDay >> 11;
+            printf("\tModification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+
+            nYear = (root[i].LastAccessedDate >> 9);
+            nMonth = (root[i].LastAccessedDate << 7);
+            nMonth = nMonth >> 12;
+            nDay = (root[i].LastAccessedDate << 11);
+            nDay = nDay >> 11;
+            printf("\tAccessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            
+            clusterNumber = root[i].FirstClusterHigh << 16;
+            clusterNumber |= root[i].FirstClusterLow;
+            cout << "\t" << root[i].FileSize << "bytes" << "\t" << clusterNumber << "cluster" << endl;
+        }
+    }
+
+    CloseHandle(device);
+    return 0;
+}
+
+
+    /*
     SetFilePointer(device, (512 * 19), NULL, FILE_BEGIN);   //Set a Point to Read
 
     if (device != NULL)
@@ -279,3 +334,33 @@ int ReadRDETFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
     return 0;
 }
 */
+
+int ReadSRDETFAT32(LPCWSTR drive) {
+    int retCode = 0;
+    DWORD bytesRead;
+    HANDLE device = NULL;
+    LongFileDir LFD;
+    string SubName = "";
+
+    device = CreateFile(drive,    // Drive to open
+        GENERIC_READ,           // Access mode
+        FILE_SHARE_READ,        // Share Mode
+        NULL,                   // Security Descriptor
+        OPEN_EXISTING,          // How to create
+        0,                      // File attributes
+        NULL);                  // Handle to template
+
+    if (device == INVALID_HANDLE_VALUE) // Open Error
+    {
+        printf("CreateFile: %u\n", GetLastError());
+        return 1;
+    }
+
+    // SB + SF * NF + SRDET
+    ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32 + (bs32.EntryRDET * 32 / bs32.BytePerSector);
+    distance *= bs32.BytePerSector; // convert to bytes
+
+    SetFilePointer(device, distance, NULL, FILE_BEGIN);
+
+
+}

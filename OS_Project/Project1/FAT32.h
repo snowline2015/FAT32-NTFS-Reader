@@ -1,10 +1,12 @@
-#ifndef HEADER_H
-#define HEADER_H
+#ifndef FAT32_H
+#define FAT32_H
 #define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
+#include <iomanip>
+#include <ctype.h>
 
 using namespace std;
 
@@ -26,21 +28,21 @@ struct BOOTSECTORFAT32
     DWORD NumberHiddenSectors;
     DWORD HighNumberSectors;
     DWORD SectorPerFat32;
-    WORD Bit8Flag;             // bit 8 bat
+    WORD Bit8Flag;             
     WORD FAT32Ver;
     DWORD FirstRDETCluster;
     WORD AddiInfoSector;
     WORD BackupSector;
-    BYTE LaterVerReserved[12];         // Cho cac phien ban sau
+    BYTE LaterVerReserved[12];       
 
-    BYTE PhysicDisk;         // 0: mem, 80h : cung
+    BYTE PhysicDisk;    
     BYTE Reserved;
     BYTE Signature;
     DWORD VolumeSerial;
     BYTE VolumeLabel[11];
     BYTE FATID[8];
     BYTE BootProgram[420];
-    WORD EndSignature;     // luon luon AA55h
+    WORD EndSignature;    
 };
 
 struct RDETFAT32 {
@@ -56,17 +58,22 @@ struct RDETFAT32 {
     WORD LastModifiedDate;
     WORD FirstClusterLow;
     DWORD FileSize;
+};
 
-    // Sub Entry
-    //BYTE Entry;
-    //BYTE Unicode5Char[10];      // UTF16
-    //BYTE DauHieuNhanBiet;
-    //BYTE Next6Char[12];
-    //BYTE Next2Char[4];
+struct LongFileDir {
+    BYTE Flag;
+    BYTE Name1[10];
+    BYTE Attribute; // always 0F
+    BYTE Reserved;
+    BYTE Checksum;
+    BYTE Name2[12];
+    BYTE RelativeCluster[2];
+    BYTE Name3[4];
 };
 
 int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512]);
-int ReadRDETFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512]);
+int ReadRDETFAT32(LPCWSTR drive);
+int ReadSRDETFAT32(LPCWSTR drive);
 int buffToInteger(byte* buffer);
 unsigned int reversedBytes(uint8_t* byte);
 
