@@ -1,8 +1,8 @@
-#include "Header.h"
+#include "FAT32.h"
+BOOTSECTORFAT32 bs32;
 
 int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
 {
-    BOOTSECTORFAT32 bs32;
     RDETFAT32 rdet32;
     int retCode = 0;
     DWORD bytesRead, bytesWrite;
@@ -32,6 +32,8 @@ int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
     else
     {
         printf("Succeed in reading bootsector !\n");
+
+        memset(&bs32, 0, sizeof(bs32));
 
         memcpy(&bs32.JUMP, sector, sizeof(bs32.JUMP));
         memcpy(&bs32.OEM, sector + 3, sizeof(bs32.OEM));
@@ -64,6 +66,8 @@ int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
         memcpy(&bs32.FATID, sector + 82, sizeof(bs32.FATID));
         memcpy(&bs32.BootProgram, sector + 90, sizeof(bs32.BootProgram));
         memcpy(&bs32.EndSignature, sector + 510, sizeof(bs32.EndSignature));
+
+        memset(&bs32, 0, sizeof(bs32));
     }
     
     //distance from begine until Root Directory or content of partetion
