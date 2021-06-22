@@ -47,9 +47,9 @@ struct BOOTSECTORFAT32
 struct RDETFAT32 {
     // Main entry
     BYTE FileName[11];
-    BYTE FileAttributes[1];
-    BYTE Reserved[1];
-    WORD CreatedHour[3];
+    BYTE FileAttributes;
+    BYTE Reserved;
+    BYTE CreatedHour[3];
     WORD CreatedDate;
     WORD LastAccessedDate;
     WORD FirstClusterHigh;

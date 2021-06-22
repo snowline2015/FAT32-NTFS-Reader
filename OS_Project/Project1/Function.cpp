@@ -71,6 +71,7 @@ int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
     distance *= bs32.BytePerSector; //convert distance number to bytes value
 
     SetFilePointer(device, distance, NULL, FILE_BEGIN);//set pointer to root directory begine or begine of data
+
     int clusterSize = bs32.BytePerSector * bs32.SectorPerCluster; //cluster size 
     int NumberOfEntries = clusterSize / sizeof(RDETFAT32); //number of record inside cluster
     RDETFAT32* root = new RDETFAT32[NumberOfEntries];//descripe the partetion
@@ -83,20 +84,20 @@ int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
         DWORD clusterNumber;
         for (int i = 0; i < NumberOfEntries; i++)
         {
-            if (root[i].FileName[0] == 0)//there no entery after this
+            if (root[i].FileName[0] == 0)   // entry trong
                 break;
-            if (root[i].FileName[0] == 0xE5)
+            if (root[i].FileName[0] == 0xE5)    // tap tin da bi xoa
                 continue;
-            if ((*root[i].FileAttributes & 0xF) == 0xF)
+            if ((root[i].FileAttributes & 0xF) == 0xF)
                 continue;
             for (int j = 0; j < 8; j++)
                 cout << root[i].FileName[j];
-            if ((*root[i].FileAttributes & 0x10) != 0x10) {
+            if ((root[i].FileAttributes & 0x10) != 0x10) {
                 cout << ".";
                 for (int j = 8; j < 11; j++)
                     cout << root[i].FileName[j];
             }
-            if ((*root[i].FileAttributes & 0x10) == 0x10) {
+            if ((root[i].FileAttributes & 0x10) == 0x10) {
                 cout << "\t<Folder>";
             }
             else {
@@ -213,19 +214,19 @@ int ReadRDETFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
                             }
 
                             printf("File Name: %s\n", bs32.FileName);
-                            if (bs32.FileAttributes[0] == 0x01)
+                            if (bs32.FileAttributes[0] & 0x01)
                                 printf("File Attribute    : Read Only File\n");
-                            if (bs32.FileAttributes[0] == 0x02)
+                            if (bs32.FileAttributes[0] & 0x02)
                                 printf("File Attribute    : Hidden File\n");
-                            if (bs32.FileAttributes[0] == 0x04)
+                            if (bs32.FileAttributes[0] & 0x04)
                                 printf("File Attribute    : System File\n");
-                            if (bs32.FileAttributes[0] == 0x08)
+                            if (bs32.FileAttributes[0] & 0x08)
                                 printf("File Attribute    : Volume Label\n");
-                            if (bs32.FileAttributes[0] == 0x0f)
+                            if (bs32.FileAttributes[0] & 0x0f)
                                 printf("File Attribute    : Long File Name\n");
-                            if (bs32.FileAttributes[0] == 0x10)
+                            if (bs32.FileAttributes[0] & 0x10)
                                 printf("File Attribute    : Directory\n");
-                            if (bs32.FileAttributes[0] == 0x20)
+                            if (bs32.FileAttributes[0] & 0x20)
                                 printf("File Attribute    : Archive\n");
 
                             WORD nYear = (*bs32.CreatedDate >> 9);
