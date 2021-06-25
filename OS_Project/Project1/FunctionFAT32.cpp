@@ -31,7 +31,38 @@ int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
     else
     {
         memset(&bs32, 0, 512);
-        memcpy(&bs32, sector, 512);
+
+        memcpy(&bs32.JUMP, sector, sizeof(bs32.JUMP));
+        memcpy(&bs32.OEM, sector + 3, sizeof(bs32.OEM));
+        memcpy(&bs32.BytePerSector, sector + 11, sizeof(bs32.BytePerSector));
+        memcpy(&bs32.SectorPerCluster, sector + 13, sizeof(bs32.SectorPerCluster));
+        memcpy(&bs32.ReservedSector, sector + 14, sizeof(bs32.ReservedSector));
+        memcpy(&bs32.FatNum, sector + 16, sizeof(bs32.FatNum));
+        memcpy(&bs32.EntryRDET, sector + 17, sizeof(bs32.EntryRDET));
+        memcpy(&bs32.LowNumberSectors, sector + 19, sizeof(bs32.LowNumberSectors));
+        memcpy(&bs32.DeviceType, sector + 21, sizeof(bs32.DeviceType));
+        memcpy(&bs32.SectorPerFat16, sector + 22, sizeof(bs32.SectorPerFat16));
+        memcpy(&bs32.SectorPerTrack, sector + 24, sizeof(bs32.SectorPerTrack));
+        memcpy(&bs32.HeadPerDisk, sector + 26, sizeof(bs32.HeadPerDisk));
+
+        memcpy(&bs32.NumberHiddenSectors, sector + 28, sizeof(bs32.NumberHiddenSectors));
+        memcpy(&bs32.HighNumberSectors, sector + 32, sizeof(bs32.HighNumberSectors));
+        memcpy(&bs32.SectorPerFat32, sector + 36, sizeof(bs32.SectorPerFat32));
+        memcpy(&bs32.Bit8Flag, sector + 40, sizeof(bs32.Bit8Flag));
+        memcpy(&bs32.FAT32Ver, sector + 42, sizeof(bs32.FAT32Ver));
+        memcpy(&bs32.FirstRDETCluster, sector + 44, sizeof(bs32.FirstRDETCluster));
+        memcpy(&bs32.AddiInfoSector, sector + 48, sizeof(bs32.AddiInfoSector));
+        memcpy(&bs32.BackupSector, sector + 50, sizeof(bs32.BackupSector));
+        memcpy(&bs32.LaterVerReserved, sector + 52, sizeof(bs32.LaterVerReserved));
+
+        memcpy(&bs32.PhysicDisk, sector + 64, sizeof(bs32.PhysicDisk));
+        memcpy(&bs32.Reserved, sector + 65, sizeof(bs32.Reserved));
+        memcpy(&bs32.Signature, sector + 66, sizeof(bs32.Signature));
+        memcpy(&bs32.VolumeSerial, sector + 67, sizeof(bs32.VolumeSerial));
+        memcpy(&bs32.VolumeLabel, sector + 71, sizeof(bs32.VolumeLabel));
+        memcpy(&bs32.FATID, sector + 82, sizeof(bs32.FATID));
+        memcpy(&bs32.BootProgram, sector + 90, sizeof(bs32.BootProgram));
+        memcpy(&bs32.EndSignature, sector + 510, sizeof(bs32.EndSignature));
     }
 
     CloseHandle(device);   
