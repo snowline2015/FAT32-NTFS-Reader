@@ -3,9 +3,8 @@ BOOTSECTORFAT32 bs32;
 
 int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
 {
-    RDETFAT32 rdet32;
     int retCode = 0;
-    DWORD bytesRead, bytesWrite;
+    DWORD bytesRead;
     HANDLE device = NULL;
 
     device = CreateFile(drive,    // Drive to open
@@ -65,6 +64,7 @@ int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
         memcpy(&bs32.BootProgram, sector + 90, sizeof(bs32.BootProgram));
         memcpy(&bs32.EndSignature, sector + 510, sizeof(bs32.EndSignature));
     }
+
     CloseHandle(device);   
     return 0;
 }
@@ -139,10 +139,6 @@ int ReadRDETFAT32(LPCWSTR drive)
                 break;
             if (root[i].FileName[0] == 0xE5)   
                 continue;
-
-            //if (root[i].FileName[0] == 0x2E) 
-            //    continue;
-            
                 
             // Xet entry phu
             if (root[i].FileAttributes == 0x0F) {
@@ -240,7 +236,7 @@ int ReadRDETFAT32(LPCWSTR drive)
             }
         }
     }
-
+    delete[] root;
     CloseHandle(device);
     return 0;
 }
