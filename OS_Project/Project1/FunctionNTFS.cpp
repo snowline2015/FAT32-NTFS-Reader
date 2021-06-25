@@ -45,13 +45,15 @@ int ReadSectorNTFS(LPCWSTR  drive, int readPoint, BYTE sector[512]) {
         memcpy(&ntfs.HeadPerDisk, sector + 26, sizeof(ntfs.HeadPerDisk));
         memcpy(&ntfs.NumberHiddenSectors, sector + 28, sizeof(ntfs.NumberHiddenSectors));
         memcpy(&ntfs.Unknown4, sector + 32, sizeof(ntfs.Unknown4)); 
+
         memcpy(&ntfs.Unknown5, sector + 36, sizeof(ntfs.Unknown5));
         memcpy(&ntfs.TotalSectors, sector + 40, sizeof(ntfs.TotalSectors));
-        memcpy(&ntfs.LogicalClusterNumber$MFT, sector + 48, sizeof(ntfs.LogicalClusterNumber$MFT));
-        memcpy(&ntfs.LogicalClusterNumber$MFTMirror, sector + 56, sizeof(ntfs.LogicalClusterNumber$MFTMirror));
+        memcpy(&ntfs.$MFTCluster, sector + 48, sizeof(ntfs.$MFTCluster));
+        memcpy(&ntfs.$MFTMirrCluster, sector + 56, sizeof(ntfs.$MFTMirrCluster));
         memcpy(&ntfs.ClustersPerFileRecordSegment, sector + 64, sizeof(ntfs.ClustersPerFileRecordSegment));
+        memcpy(&ntfs.Unknown6, sector + 65, sizeof(ntfs.Unknown6));
         memcpy(&ntfs.ClustersPerIndexBuffer, sector + 68, sizeof(ntfs.ClustersPerIndexBuffer));
-        memcpy(&ntfs.Unknown6, sector + 69, sizeof(ntfs.Unknown6));
+        memcpy(&ntfs.Unknown7, sector + 69, sizeof(ntfs.Unknown7));
         memcpy(&ntfs.VolumeSerial, sector + 72, sizeof(ntfs.VolumeSerial));
         memcpy(&ntfs.Checksum, sector + 80, sizeof(ntfs.Checksum));
 

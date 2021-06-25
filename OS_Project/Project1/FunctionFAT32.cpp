@@ -100,7 +100,7 @@ int ReadRDETFAT32(LPCWSTR drive)
     DWORD bytesRead;
     HANDLE device = NULL;
     LongFileDir LFD;
-    string SubName = "";
+    std::string SubName = "";
 
     device = CreateFile(drive,    // Drive to open
         GENERIC_READ,           // Access mode
@@ -145,7 +145,7 @@ int ReadRDETFAT32(LPCWSTR drive)
                 memset(&LFD, 0, sizeof(LFD));
                 memcpy(&LFD, &root[i], sizeof(LFD));
                 
-                string temp = "";
+                std::string temp = "";
                 for (int j = 0; j < 3; j++) {
                     if (j == 0) {
                         for (int k = 0; k < sizeof(LFD.Name1); k++)
@@ -169,17 +169,16 @@ int ReadRDETFAT32(LPCWSTR drive)
                 
             }
 
-            if (SubName != "") {
-                cout << SubName;
-                SubName = "";
-            }
+            if (SubName != "") 
+                std::cout << SubName;
+
             else {
                 for (int j = 0; j < 8; j++)
-                    cout << root[i].FileName[j];
+                    std::cout << root[i].FileName[j];
                 if ((root[i].FileAttributes & 0x10) != 0x10) {
-                    cout << ".";
+                    std::cout << ".";
                     for (int j = 8; j < 11; j++)
-                        cout << root[i].FileName[j];
+                        std::cout << root[i].FileName[j];
                 }
             }
 
@@ -226,7 +225,7 @@ int ReadRDETFAT32(LPCWSTR drive)
             
             DWORD clusterNumber = root[i].FirstClusterHigh << 16;
             clusterNumber |= root[i].FirstClusterLow;
-            cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << endl;
+            std::cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << std::endl;
 
 
             if (root[i].FileAttributes == 0x10) {
@@ -234,6 +233,13 @@ int ReadRDETFAT32(LPCWSTR drive)
                 ReadSRDETFAT32(drive, device, clusterNumber);
                 std::cout << "}\n" << std::endl;
             }
+
+            /*if (SubName != "") {
+                if (SubName.length() - 4 >= 0 && SubName.substr(SubName.length() - 3) == "txt")
+                    ReadTextFile(drive, device, clusterNumber);
+            }*/
+
+            SubName = "";
         }
     }
     delete[] root;
@@ -246,7 +252,7 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
     HANDLE CopyDevice = device;
     DWORD bytesRead;
     LongFileDir LFD;
-    string SubName = "";    
+    std::string SubName = "";
 
     ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32 + (cluster - 2) * bs32.SectorPerCluster;
     distance *= bs32.BytePerSector; 
@@ -278,7 +284,7 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
                 memset(&LFD, 0, sizeof(LFD));
                 memcpy(&LFD, &root[i], sizeof(LFD));
 
-                string temp = "";
+                std::string temp = "";
                 for (int j = 0; j < 3; j++) {
                     if (j == 0) {
                         for (int k = 0; k < sizeof(LFD.Name1); k++)
@@ -303,16 +309,16 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
             }
 
             if (SubName != "") {
-                cout << SubName;
+                std::cout << SubName;
                 SubName = "";
             }
             else {
                 for (int j = 0; j < 8; j++)
-                    cout << root[i].FileName[j];
+                    std::cout << root[i].FileName[j];
                 if ((root[i].FileAttributes & 0x10) != 0x10) {
-                    cout << ".";
+                    std::cout << ".";
                     for (int j = 8; j < 11; j++)
-                        cout << root[i].FileName[j];
+                        std::cout << root[i].FileName[j];
                 }
             }
 
@@ -359,7 +365,7 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
 
             DWORD clusterNumber = root[i].FirstClusterHigh << 16;
             clusterNumber |= root[i].FirstClusterLow;
-            cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << endl;
+            std::cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << std::endl;
 
             if (root[i].FileAttributes == 0x10) {
                 std::cout << "Sub\n{\n" << std::endl;
@@ -370,5 +376,38 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
     }
 
     delete[] root;
+    return 0;
+}
+
+int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster) {
+    int retCode = 0;
+    HANDLE CopyDevice = device;
+    DWORD bytesRead;
+    BYTE sector[512];
+    
+    
+    ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32 + (cluster - 2) * bs32.SectorPerCluster;
+    distance *= bs32.BytePerSector;
+
+    ok:
+    SetFilePointer(CopyDevice, distance, NULL, FILE_BEGIN);
+
+    if (!ReadFile(CopyDevice, sector, 512, &bytesRead, 0))
+    {
+        printf("ReadFile: %u\n", GetLastError());
+        return 1;
+    }
+    else {
+        for (int i = 0; i < 512; i++) {
+            if (sector[i] == '\0') break;
+            std::cout << sector[i];
+            if (i == 511 && sector[i] != '\0') {
+                memset(sector, 0, 512);
+                distance += 512;
+                goto ok;
+            }
+        }
+    }
+
     return 0;
 }
