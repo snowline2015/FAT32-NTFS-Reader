@@ -125,6 +125,7 @@
     <ClCompile Include="GUI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="functions.h" />
     <ClInclude Include="GUI.h">
       <FileType>CppForm</FileType>
     </ClInclude>

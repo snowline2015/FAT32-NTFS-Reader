@@ -1,5 +1,7 @@
 #pragma once
 
+#include"functions.h"
+
 namespace GUI {
 
 	using namespace System;
@@ -156,6 +158,10 @@ namespace GUI {
 			this->comboBox1->Size = System::Drawing::Size(229, 24);
 			this->comboBox1->TabIndex = 1;
 			this->comboBox1->SelectedIndexChanged += gcnew System::EventHandler(this, &GUI::comboBox1_SelectedIndexChanged);
+			
+			//array<String^>^ drives = getDrive();
+			//this->comboBox1->Items->AddRange(%drives);
+
 			// 
 			// listView1
 			// 
@@ -203,13 +209,15 @@ namespace GUI {
 
 		}
 #pragma endregion
-	private: System::Void comboBox1_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
-	}
-private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-}
-private: System::Void label1_Click(System::Object^ sender, System::EventArgs^ e) {
-}
-private: System::Void label3_Click(System::Object^ sender, System::EventArgs^ e) {
-}
-};
+		private: System::Void comboBox1_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
+			
+		}
+
+		private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+		}
+		private: System::Void label1_Click(System::Object^ sender, System::EventArgs^ e) {
+		}
+		private: System::Void label3_Click(System::Object^ sender, System::EventArgs^ e) {
+		}
+	};
 }
