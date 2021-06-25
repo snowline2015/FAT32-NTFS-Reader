@@ -1,13 +1,15 @@
 #pragma once
 
-#include<windows.h>
-#include<stdio.h>
+#include <windows.h>
+#include <stdio.h>
 #include <vector>
 #include <string>
+#include <msclr/marshal_cppstd.h>
 
 using namespace System;
+using namespace msclr::interop;
 
-std::vector<std::string> getDrive() {
+array<String^>^ getDrive() {
 
     DWORD cchBuffer;
     WCHAR* driveStrings;
@@ -15,7 +17,7 @@ std::vector<std::string> getDrive() {
     LPCWSTR driveTypeString;
     ULARGE_INTEGER freeSpace;
     std::vector<std::string> ok;
-    array<String^>^ ok2;
+    array<String^>^ drives;
 
     // Find out how big a buffer we need
     cchBuffer = GetLogicalDriveStrings(0, NULL);
@@ -23,14 +25,11 @@ std::vector<std::string> getDrive() {
     driveStrings = (WCHAR*)malloc((cchBuffer + 1) * sizeof(TCHAR));
     if (driveStrings == NULL)
     {
-        return;
+        return nullptr;
     }
 
     // Fetch all drive strings
     GetLogicalDriveStrings(cchBuffer, driveStrings);
-
-    //ok2 = gcnew array<String^>();
-    //int i = 0;
 
     // Loop until we find the final '\0'
     // driveStrings is a double null terminated list of null terminated strings)
@@ -70,11 +69,13 @@ std::vector<std::string> getDrive() {
         std::string temp(ws.begin(), ws.end());
         ok.push_back(temp);
 
-        /*ok2[i] = ;
-        ++i;*/
-
         driveStrings += lstrlen(driveStrings) + 1;
     }
 
-    return ok;
+    drives = gcnew array<String^>(ok.size());
+    for (int i = 0; i < ok.size(); ++i) {
+        drives[i] = marshal_as<String^>(ok[i]);
+    }
+
+    return drives;
 }

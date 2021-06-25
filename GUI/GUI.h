@@ -159,8 +159,8 @@ namespace GUI {
 			this->comboBox1->TabIndex = 1;
 			this->comboBox1->SelectedIndexChanged += gcnew System::EventHandler(this, &GUI::comboBox1_SelectedIndexChanged);
 			
-			//array<String^>^ drives = getDrive();
-			//this->comboBox1->Items->AddRange(%drives);
+			array<String^>^ drives = getDrive();
+			this->comboBox1->Items->AddRange(drives);
 
 			// 
 			// listView1
@@ -209,9 +209,7 @@ namespace GUI {
 
 		}
 #pragma endregion
-		private: System::Void comboBox1_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
-			
-		}
+		private: System::Void comboBox1_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {}
 
 		private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 		}
