@@ -6,8 +6,6 @@
 
 #include "FAT32.h"
 
-using namespace std;
-
 struct BOOTSECTORNTFS {
     BYTE JUMP[3];
     BYTE OEM[8];
@@ -39,9 +37,12 @@ struct BOOTSECTORNTFS {
     BYTE Bootstrap[426];
     WORD EndOfSectorMarker;
 };
+
 struct NTFS_SYSTEM_FILES
 {
 
 };
+
+int ReadSectorNTFS(LPCWSTR  drive, int readPoint, BYTE sector[512]);
 
 #endif
