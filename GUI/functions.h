@@ -1,4 +1,6 @@
 #pragma once
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
 
 #include <windows.h>
 #include <stdio.h>
@@ -25,7 +27,7 @@ array<String^>^ getDrive() {
     driveStrings = (WCHAR*)malloc((cchBuffer + 1) * sizeof(TCHAR));
     if (driveStrings == NULL)
     {
-        return nullptr;
+        return gcnew array<String^>(0);
     }
 
     // Fetch all drive strings
@@ -72,10 +74,14 @@ array<String^>^ getDrive() {
         driveStrings += lstrlen(driveStrings) + 1;
     }
 
-    drives = gcnew array<String^>(ok.size());
-    for (int i = 0; i < ok.size(); ++i) {
-        drives[i] = marshal_as<String^>(ok[i]);
+    if (ok.size() > 0) {
+        drives = gcnew array<String^>(ok.size());
+        for (int i = 0; i < ok.size(); ++i) {
+            drives[i] = marshal_as<String^>(ok[i]);
+        }
     }
 
     return drives;
 }
+
+#endif
