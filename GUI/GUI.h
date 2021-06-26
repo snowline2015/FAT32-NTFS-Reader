@@ -1,6 +1,8 @@
 #pragma once
 
 #include"functions.h"
+#include "../OS_Project/Project1/FAT32.h"
+#include"../OS_Project/Project1/NTFS.h"
 
 namespace GUI {
 
@@ -38,8 +40,8 @@ namespace GUI {
 		}
 	private: System::Windows::Forms::SplitContainer^ splitContainer1;
 	protected:
-	private: System::Windows::Forms::Label^ label2;
-	private: System::Windows::Forms::Label^ label1;
+
+
 	private: System::Windows::Forms::TreeView^ treeView1;
 	private: System::Windows::Forms::Button^ button1;
 	private: System::Windows::Forms::ComboBox^ comboBox1;
@@ -61,8 +63,6 @@ namespace GUI {
 		{
 			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(GUI::typeid));
 			this->splitContainer1 = (gcnew System::Windows::Forms::SplitContainer());
-			this->label2 = (gcnew System::Windows::Forms::Label());
-			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->treeView1 = (gcnew System::Windows::Forms::TreeView());
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->comboBox1 = (gcnew System::Windows::Forms::ComboBox());
@@ -83,8 +83,6 @@ namespace GUI {
 			// splitContainer1.Panel1
 			// 
 			this->splitContainer1->Panel1->BackColor = System::Drawing::Color::White;
-			this->splitContainer1->Panel1->Controls->Add(this->label2);
-			this->splitContainer1->Panel1->Controls->Add(this->label1);
 			this->splitContainer1->Panel1->Controls->Add(this->treeView1);
 			this->splitContainer1->Panel1->Controls->Add(this->button1);
 			this->splitContainer1->Panel1->Controls->Add(this->comboBox1);
@@ -98,29 +96,6 @@ namespace GUI {
 			this->splitContainer1->SplitterDistance = 379;
 			this->splitContainer1->TabIndex = 0;
 			// 
-			// label2
-			// 
-			this->label2->AutoSize = true;
-			this->label2->Font = (gcnew System::Drawing::Font(L"Segoe UI Semibold", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
-			this->label2->Location = System::Drawing::Point(92, 418);
-			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(13, 20);
-			this->label2->TabIndex = 5;
-			this->label2->Text = L" ";
-			// 
-			// label1
-			// 
-			this->label1->AutoSize = true;
-			this->label1->Font = (gcnew System::Drawing::Font(L"Segoe UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
-			this->label1->Location = System::Drawing::Point(26, 416);
-			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(51, 23);
-			this->label1->TabIndex = 4;
-			this->label1->Text = L"Path:";
-			this->label1->Click += gcnew System::EventHandler(this, &GUI::label1_Click);
-			// 
 			// treeView1
 			// 
 			this->treeView1->BackColor = System::Drawing::Color::White;
@@ -129,7 +104,7 @@ namespace GUI {
 				static_cast<System::Byte>(0)));
 			this->treeView1->Location = System::Drawing::Point(30, 61);
 			this->treeView1->Name = L"treeView1";
-			this->treeView1->Size = System::Drawing::Size(331, 343);
+			this->treeView1->Size = System::Drawing::Size(331, 363);
 			this->treeView1->TabIndex = 3;
 			// 
 			// button1
@@ -145,7 +120,7 @@ namespace GUI {
 			this->button1->Name = L"button1";
 			this->button1->Size = System::Drawing::Size(86, 28);
 			this->button1->TabIndex = 2;
-			this->button1->Text = L"Choose";
+			this->button1->Text = L"Get Info";
 			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &GUI::button1_Click);
 			// 
@@ -158,10 +133,6 @@ namespace GUI {
 			this->comboBox1->Size = System::Drawing::Size(229, 24);
 			this->comboBox1->TabIndex = 1;
 			this->comboBox1->SelectedIndexChanged += gcnew System::EventHandler(this, &GUI::comboBox1_SelectedIndexChanged);
-			
-			array<String^>^ drives = getDrive();
-			this->comboBox1->Items->AddRange(drives);
-
 			// 
 			// listView1
 			// 
@@ -200,7 +171,6 @@ namespace GUI {
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"GUI";
 			this->splitContainer1->Panel1->ResumeLayout(false);
-			this->splitContainer1->Panel1->PerformLayout();
 			this->splitContainer1->Panel2->ResumeLayout(false);
 			this->splitContainer1->Panel2->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->EndInit();

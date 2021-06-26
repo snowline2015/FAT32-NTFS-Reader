@@ -126,6 +126,7 @@ int ReadRDETFAT32(LPCWSTR drive)
     int NumberOfEntries = clusterSize / sizeof(RDETFAT32);  // number of record inside cluster
     RDETFAT32* root = new RDETFAT32[NumberOfEntries];   // descripe the partition
 
+
     if (!ReadFile(device, (BYTE*)root, clusterSize, &bytesRead, 0))
     {
         printf("ReadFile: %u\n", GetLastError());
