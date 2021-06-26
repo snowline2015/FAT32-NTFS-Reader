@@ -84,4 +84,11 @@ array<String^>^ getDrive() {
     return drives;
 }
 
+void something() {
+
+    /*BYTE sector[512];
+    //ReadSectorFAT32(L"\\\\.\\C:", 0, sector);
+    //ReadRDETFAT32(L"\\\\.\\C:");*/
+}
+
 #endif
