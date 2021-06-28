@@ -17,7 +17,7 @@ int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
 
     if (device == INVALID_HANDLE_VALUE) // Open Error
     {
-        printf("CreateFile: %u\n", GetLastError());
+        //printf("CreateFile: %u\n", GetLastError());
         return 1;
     }
 
@@ -25,7 +25,7 @@ int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
 
     if (!ReadFile(device, sector, 512, &bytesRead, NULL))
     {
-        printf("ReadFile: %u\n", GetLastError());
+        //printf("ReadFile: %u\n", GetLastError());
         return 1;
     }
     else
@@ -94,13 +94,16 @@ unsigned int reversedBytes(uint8_t* byte) {
 }
 
 
-int ReadRDETFAT32(LPCWSTR drive)
+TreeNode^ ReadRDETFAT32(LPCWSTR drive, System::String^ drive_name)
 {
     int retCode = 0;
     DWORD bytesRead;
     HANDLE device = NULL;
     LongFileDir LFD;
     std::string SubName = "";
+    array<TreeNode^>^ folders;
+    TreeNode^ tree;
+    String^ str;
 
     device = CreateFile(drive,    // Drive to open
         GENERIC_READ,           // Access mode
@@ -112,19 +115,19 @@ int ReadRDETFAT32(LPCWSTR drive)
 
     if (device == INVALID_HANDLE_VALUE) // Open Error
     {
-        printf("CreateFile: %u\n", GetLastError());
-        return 1;
+        //printf("CreateFile: %u\n", GetLastError());
+        return gcnew TreeNode("ERROR_CREATING_FILE");
     }
 
     // Read FAT Table
-    int FATSize = bs32.SectorPerFat32 * bs32.BytePerSector;
-    DWORD* FATTable = new DWORD[FATSize/4];
+    /*int FATSize = bs32.SectorPerFat32 * bs32.BytePerSector;
+    DWORD* FATTable = new DWORD[FATSize];
     SetFilePointer(device, bs32.ReservedSector * bs32.BytePerSector, NULL, FILE_BEGIN);
     if (!ReadFile(device, FATTable, FATSize, &bytesRead, 0))
     {
         printf("ReadFile: %u\n", GetLastError());
         return 1;
-    }
+    }*/
 
     //// SB + SF * NF
     ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32;
@@ -139,11 +142,13 @@ int ReadRDETFAT32(LPCWSTR drive)
 
     if (!ReadFile(device, (BYTE*)root, clusterSize, &bytesRead, 0))
     {
-        printf("ReadFile: %u\n", GetLastError());
-        return 1;
+        //printf("ReadFile: %u\n", GetLastError());
+        return gcnew TreeNode("ERROR_READING_FILE");
     }
     else {
         bool breakPoint = false;
+        folders = gcnew array<TreeNode^>(NumberOfEntries);
+        int ind = 0;
         for (int i = 0; i < NumberOfEntries; i++)
         {
             // Xet entry chinh
@@ -183,20 +188,30 @@ int ReadRDETFAT32(LPCWSTR drive)
                 
             }
 
-            if (SubName != "") 
-                std::cout << SubName;
-
-            else {
-                for (int j = 0; j < 8; j++)
-                    std::cout << root[i].FileName[j];
-                if ((root[i].FileAttributes & 0x10) != 0x10) {
-                    std::cout << ".";
-                    for (int j = 8; j < 11; j++)
-                        std::cout << root[i].FileName[j];
-                }
+            if (SubName != "") {
+                //std::cout << SubName;
+                str = marshal_as<String^>(SubName);
             }
 
-            if (root[i].FileAttributes == 0x01)
+            else {
+                std::string tmp = "";
+                for (int j = 0; j < 8; j++) {
+                    //std::cout << root[i].FileName[j];
+                    tmp += root[i].FileName[j];
+                }
+                if ((root[i].FileAttributes & 0x10) != 0x10) {
+                    //std::cout << ".";
+                    tmp += '.';
+                    for (int j = 8; j < 11; j++) {
+                        //std::cout << root[i].FileName[j];
+                        tmp += root[i].FileName[j];
+                    }
+                }
+
+                str = marshal_as<String^>(tmp);
+            }
+
+            /*if (root[i].FileAttributes == 0x01)
                 printf("\t<Read Only>\n");
             if (root[i].FileAttributes == 0x02)
                 printf("\t<Hidden>\n");
@@ -207,45 +222,50 @@ int ReadRDETFAT32(LPCWSTR drive)
             if (root[i].FileAttributes == 0x10)
                 printf("\t<Directory>\n");
             if (root[i].FileAttributes == 0x20)
-                printf("\t<Archive>\n");
+                printf("\t<Archive>\n");*/
 
             WORD nYear = (root[i].CreatedDate >> 9);
             WORD nMonth = (root[i].CreatedDate << 7);
             nMonth = nMonth >> 12;
             WORD nDay = (root[i].CreatedDate << 11);
             nDay = nDay >> 11;
-            printf("\tCreate Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            //printf("\tCreate Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
 
             nYear = (root[i].LastModifiedDate >> 9);
             nMonth = (root[i].LastModifiedDate << 7);
             nMonth = nMonth >> 12;
             nDay = (root[i].LastModifiedDate << 11);
             nDay = nDay >> 11;
-            printf("\tModification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            //printf("\tModification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
 
             WORD nHour = (root[i].LastModifiedHour >> 11);
             WORD nMin = (root[i].LastModifiedHour << 5);
             nMin = nMin >> 10;
             WORD nSec = (root[i].LastModifiedHour << 11);
             nSec = nSec >> 11;
-            printf("\tModification Hours: %02d:%02d:%02d\n", nHour, nMin, nSec/2);
+            //printf("\tModification Hours: %02d:%02d:%02d\n", nHour, nMin, nSec/2);
 
             nYear = (root[i].LastAccessedDate >> 9);
             nMonth = (root[i].LastAccessedDate << 7);
             nMonth = nMonth >> 12;
             nDay = (root[i].LastAccessedDate << 11);
             nDay = nDay >> 11;
-            printf("\tAccessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            //printf("\tAccessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
             
             DWORD clusterNumber = root[i].FirstClusterHigh << 16;
             clusterNumber |= root[i].FirstClusterLow;
-            std::cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << std::endl;
+            //std::cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << std::endl;
 
 
             if (root[i].FileAttributes == 0x10) {
-                std::cout << "Sub\n{\n" << std::endl;
-                ReadSRDETFAT32(drive, device, clusterNumber);
-                std::cout << "}\n" << std::endl;
+                //std::cout << "Sub\n{\n" << std::endl;
+                folders[ind] = ReadSRDETFAT32(drive, device, clusterNumber, str);
+                ++ind;
+                //std::cout << "}\n" << std::endl;
+            }
+            else {
+                folders[ind] = gcnew TreeNode(str);
+                ++ind;
             }
 
             /*if (SubName != "") {
@@ -262,17 +282,23 @@ int ReadRDETFAT32(LPCWSTR drive)
             goto Start;
         }
     }
+
+    tree = gcnew TreeNode(drive_name, folders);
+
     delete[] root;
     CloseHandle(device);
-    return 0;
+    return tree;
 }
 
-int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
+TreeNode^ ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, System::String^ dname) {
     int retCode = 0;
     HANDLE CopyDevice = device;
     DWORD bytesRead;
     LongFileDir LFD;
     std::string SubName = "";
+    array<TreeNode^>^ _folder;
+    TreeNode^ _tree;
+    String^ _str;
 
     ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32 + (cluster - 2) * bs32.SectorPerCluster;
     distance *= bs32.BytePerSector; 
@@ -286,11 +312,13 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
 
     if (!ReadFile(CopyDevice, (BYTE*)root, clusterSize, &bytesRead, 0))
     {
-        printf("ReadFile: %u\n", GetLastError());
-        return 1;
+        //printf("ReadFile: %u\n", GetLastError());
+        return gcnew TreeNode("ERROR_READING_FILE");
     }
     else {
         bool breakPoint = false;
+        _folder = gcnew array<TreeNode^>(NumberOfEntries);
+        int ind = 0;
         for (int i = 0; i < NumberOfEntries; i++)
         {
             // Xet entry chinh
@@ -333,20 +361,28 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
             }
 
             if (SubName != "") {
-                std::cout << SubName;
+                //std::cout << SubName;
+                _str = marshal_as<String^>(SubName);
                 SubName = "";
             }
             else {
-                for (int j = 0; j < 8; j++)
-                    std::cout << root[i].FileName[j];
-                if ((root[i].FileAttributes & 0x10) != 0x10) {
-                    std::cout << ".";
-                    for (int j = 8; j < 11; j++)
-                        std::cout << root[i].FileName[j];
+                std::string tmp = "";
+                for (int j = 0; j < 8; j++) {
+                    //std::cout << root[i].FileName[j];
+                    tmp += root[i].FileName[j];
                 }
+                if ((root[i].FileAttributes & 0x10) != 0x10) {
+                    //std::cout << ".";
+                    tmp += '.';
+                    for (int j = 8; j < 11; j++) {
+                        //std::cout << root[i].FileName[j];
+                        tmp += root[i].FileName[j];
+                    }
+                }
+                _str = marshal_as<String^>(tmp);
             }
 
-            if (root[i].FileAttributes == 0x01)
+            /*if (root[i].FileAttributes == 0x01)
                 printf("\t<Read Only>\n");
             if (root[i].FileAttributes == 0x02)
                 printf("\t<Hidden>\n");
@@ -357,44 +393,49 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
             if (root[i].FileAttributes == 0x10)
                 printf("\t<Directory>\n");
             if (root[i].FileAttributes == 0x20)
-                printf("\t<Archive>\n");
+                printf("\t<Archive>\n");*/
 
             WORD nYear = (root[i].CreatedDate >> 9);
             WORD nMonth = (root[i].CreatedDate << 7);
             nMonth = nMonth >> 12;
             WORD nDay = (root[i].CreatedDate << 11);
             nDay = nDay >> 11;
-            printf("\tCreate Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            //printf("\tCreate Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
 
             nYear = (root[i].LastModifiedDate >> 9);
             nMonth = (root[i].LastModifiedDate << 7);
             nMonth = nMonth >> 12;
             nDay = (root[i].LastModifiedDate << 11);
             nDay = nDay >> 11;
-            printf("\tModification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            //printf("\tModification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
 
             WORD nHour = (root[i].LastModifiedHour >> 11);
             WORD nMin = (root[i].LastModifiedHour << 5);
             nMin = nMin >> 10;
             WORD nSec = (root[i].LastModifiedHour << 11);
             nSec = nSec >> 11;
-            printf("\tModification Hours: %02d:%02d:%02d\n", nHour, nMin, nSec / 2);
+            //printf("\tModification Hours: %02d:%02d:%02d\n", nHour, nMin, nSec / 2);
 
             nYear = (root[i].LastAccessedDate >> 9);
             nMonth = (root[i].LastAccessedDate << 7);
             nMonth = nMonth >> 12;
             nDay = (root[i].LastAccessedDate << 11);
             nDay = nDay >> 11;
-            printf("\tAccessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            //printf("\tAccessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
 
             DWORD clusterNumber = root[i].FirstClusterHigh << 16;
             clusterNumber |= root[i].FirstClusterLow;
-            std::cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << std::endl;
+            //std::cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << std::endl;
 
             if (root[i].FileAttributes == 0x10) {
-                std::cout << "Sub\n{\n" << std::endl;
-                ReadSRDETFAT32(drive, CopyDevice, clusterNumber);
-                std::cout << "}\n" << std::endl;
+                //std::cout << "Sub\n{\n" << std::endl;
+                _folder[ind] = ReadSRDETFAT32(drive, CopyDevice, clusterNumber, _str);
+                ++ind;
+                //std::cout << "}\n" << std::endl;
+            }
+            else {
+                _folder[ind] = gcnew TreeNode(_str);
+                ++ind;
             }
         }
 
@@ -405,8 +446,10 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
         }
     }
 
+    _tree = gcnew TreeNode(dname, _folder);
+
     delete[] root;
-    return 0;
+    return _tree;
 }
 
 int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster) {

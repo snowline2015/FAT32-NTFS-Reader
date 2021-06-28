@@ -11,6 +11,11 @@
 using namespace System;
 using namespace msclr::interop;
 
+public ref struct _DRIVE {
+    String^ name;
+    String^ type;
+};
+
 array<String^>^ getDrive() {
 
     DWORD cchBuffer;
@@ -82,13 +87,6 @@ array<String^>^ getDrive() {
     }
 
     return drives;
-}
-
-void something() {
-
-    /*BYTE sector[512];
-    //ReadSectorFAT32(L"\\\\.\\C:", 0, sector);
-    //ReadRDETFAT32(L"\\\\.\\C:");*/
 }
 
 #endif

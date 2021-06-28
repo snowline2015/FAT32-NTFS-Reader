@@ -18,6 +18,9 @@
     <ClCompile Include="GUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\OS_Project\Project1\FunctionFAT32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -25,6 +28,9 @@
     </ClInclude>
     <ClInclude Include="functions.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OS_Project\Project1\FAT32.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

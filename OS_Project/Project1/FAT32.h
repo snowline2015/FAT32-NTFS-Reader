@@ -9,6 +9,12 @@
 #include <string.h>
 #include <iomanip>
 #include <ctype.h>
+#include<msclr/marshal_cppstd.h>
+
+using namespace System;
+using namespace msclr::interop;
+using namespace System::Drawing;
+using namespace System::Windows::Forms;
 
 struct BOOTSECTORFAT32
 {
@@ -74,8 +80,8 @@ struct LongFileDir {
 extern BOOTSECTORFAT32 bs32;
 
 int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512]);
-int ReadRDETFAT32(LPCWSTR drive);
-int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster);
+TreeNode^ ReadRDETFAT32(LPCWSTR drive, System::String^ drive_name);
+TreeNode^ ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, System::String^ dname);
 int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster);
 int buffToInteger(byte* buffer);
 unsigned int reversedBytes(uint8_t* byte);

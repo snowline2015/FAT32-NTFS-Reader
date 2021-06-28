@@ -122,9 +122,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\OS_Project\Project1\FunctionFAT32.cpp" />
     <ClCompile Include="GUI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\OS_Project\Project1\FAT32.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="GUI.h">
       <FileType>CppForm</FileType>

@@ -39,9 +39,6 @@ namespace GUI {
 			}
 		}
 	private: System::Windows::Forms::SplitContainer^ splitContainer1;
-	protected:
-
-
 	private: System::Windows::Forms::TreeView^ treeView1;
 	private: System::Windows::Forms::Button^ button1;
 	private: System::Windows::Forms::ComboBox^ comboBox1;
@@ -53,6 +50,7 @@ namespace GUI {
 		/// Required designer variable.
 		/// </summary>
 		System::ComponentModel::Container ^components;
+		System::String^ selected_drive;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -120,7 +118,7 @@ namespace GUI {
 			this->button1->Name = L"button1";
 			this->button1->Size = System::Drawing::Size(86, 28);
 			this->button1->TabIndex = 2;
-			this->button1->Text = L"Get Info";
+			this->button1->Text = L"Choose";
 			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &GUI::button1_Click);
 			// 
@@ -133,6 +131,8 @@ namespace GUI {
 			this->comboBox1->Size = System::Drawing::Size(229, 24);
 			this->comboBox1->TabIndex = 1;
 			this->comboBox1->SelectedIndexChanged += gcnew System::EventHandler(this, &GUI::comboBox1_SelectedIndexChanged);
+			array<String^>^ drives = getDrive();
+			comboBox1->Items->AddRange(drives);
 			// 
 			// listView1
 			// 
@@ -179,10 +179,17 @@ namespace GUI {
 
 		}
 #pragma endregion
-		private: System::Void comboBox1_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {}
+		private: System::Void comboBox1_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
+			selected_drive = (String^)comboBox1->SelectedItem;
+		}
 
 		private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+			BYTE sector[512];
+			ReadBootSectorFAT32(L"\\\\.\\C:", 0, sector);
+			TreeNode^ main_tree = ReadRDETFAT32(L"\\\\.\\C:", selected_drive);
+			treeView1->Nodes->Add(main_tree);
 		}
+
 		private: System::Void label1_Click(System::Object^ sender, System::EventArgs^ e) {
 		}
 		private: System::Void label3_Click(System::Object^ sender, System::EventArgs^ e) {
