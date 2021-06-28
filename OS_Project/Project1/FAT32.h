@@ -1,6 +1,8 @@
 #ifndef FAT32_H
 #define FAT32_H
+#define _CRT_SECURE_NO_WARNINGS
 #define INVALID_SET_FILE_POINTER ((DWORD)-1)
+
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
@@ -69,11 +71,15 @@ struct LongFileDir {
     BYTE Name3[4];
 };
 
-int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512]);
+extern BOOTSECTORFAT32 bs32;
+
+int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512]);
 int ReadRDETFAT32(LPCWSTR drive);
 int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster);
 int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster);
 int buffToInteger(byte* buffer);
 unsigned int reversedBytes(uint8_t* byte);
+
+
 
 #endif

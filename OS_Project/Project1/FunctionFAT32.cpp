@@ -1,7 +1,7 @@
 #include "FAT32.h"
 BOOTSECTORFAT32 bs32;
 
-int ReadSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
+int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
 {
     int retCode = 0;
     DWORD bytesRead;
@@ -116,16 +116,26 @@ int ReadRDETFAT32(LPCWSTR drive)
         return 1;
     }
 
-    // SB + SF * NF
+    // Read FAT Table
+    int FATSize = bs32.SectorPerFat32 * bs32.BytePerSector;
+    DWORD* FATTable = new DWORD[FATSize/4];
+    SetFilePointer(device, bs32.ReservedSector * bs32.BytePerSector, NULL, FILE_BEGIN);
+    if (!ReadFile(device, FATTable, FATSize, &bytesRead, 0))
+    {
+        printf("ReadFile: %u\n", GetLastError());
+        return 1;
+    }
+
+    //// SB + SF * NF
     ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32;
     distance *= bs32.BytePerSector; // convert to bytes
 
+    Start:
     SetFilePointer(device, distance, NULL, FILE_BEGIN);
 
     int clusterSize = bs32.BytePerSector * bs32.SectorPerCluster;   // cluster size 
     int NumberOfEntries = clusterSize / sizeof(RDETFAT32);  // number of record inside cluster
     RDETFAT32* root = new RDETFAT32[NumberOfEntries];   // descripe the partition
-
 
     if (!ReadFile(device, (BYTE*)root, clusterSize, &bytesRead, 0))
     {
@@ -133,11 +143,14 @@ int ReadRDETFAT32(LPCWSTR drive)
         return 1;
     }
     else {
+        bool breakPoint = false;
         for (int i = 0; i < NumberOfEntries; i++)
         {
             // Xet entry chinh
-            if (root[i].FileName[0] == 0x00)
+            if (root[i].FileName[0] == 0x00) {
+                breakPoint = true;
                 break;
+            }
             if (root[i].FileName[0] == 0xE5)   
                 continue;
                 
@@ -242,6 +255,12 @@ int ReadRDETFAT32(LPCWSTR drive)
 
             SubName = "";
         }
+
+        if (breakPoint == false) {
+            delete[] root;
+            distance += clusterSize;
+            goto Start;
+        }
     }
     delete[] root;
     CloseHandle(device);
@@ -258,11 +277,12 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
     ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32 + (cluster - 2) * bs32.SectorPerCluster;
     distance *= bs32.BytePerSector; 
 
+    Start:
+    SetFilePointer(CopyDevice, distance, NULL, FILE_BEGIN);
+
     int clusterSize = bs32.BytePerSector * bs32.SectorPerCluster;   // cluster size 
     int NumberOfEntries = clusterSize / sizeof(RDETFAT32);  // number of record inside cluster
     RDETFAT32* root = new RDETFAT32[NumberOfEntries];   // descripe the partition
-
-    SetFilePointer(CopyDevice, distance, NULL, FILE_BEGIN);
 
     if (!ReadFile(CopyDevice, (BYTE*)root, clusterSize, &bytesRead, 0))
     {
@@ -270,11 +290,14 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
         return 1;
     }
     else {
+        bool breakPoint = false;
         for (int i = 0; i < NumberOfEntries; i++)
         {
             // Xet entry chinh
-            if (root[i].FileName[0] == 0x00)
+            if (root[i].FileName[0] == 0x00) {
+                breakPoint = true;
                 break;
+            }
             if (root[i].FileName[0] == 0xE5)
                 continue;
             if (root[i].FileName[0] == 0x2E)
@@ -373,6 +396,12 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster) {
                 ReadSRDETFAT32(drive, CopyDevice, clusterNumber);
                 std::cout << "}\n" << std::endl;
             }
+        }
+
+        if (breakPoint == false) {
+            delete[] root;
+            distance += clusterSize;
+            goto Start;
         }
     }
 
