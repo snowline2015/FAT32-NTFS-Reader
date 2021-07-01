@@ -141,10 +141,12 @@
   <ItemGroup>
     <ClCompile Include="FunctionFAT32.cpp" />
     <ClCompile Include="FunctionNTFS.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FAT32.h" />
+    <ClInclude Include="GUI.h" />
     <ClInclude Include="NTFS.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

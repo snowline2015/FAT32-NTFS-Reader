@@ -1,6 +1,6 @@
 #include "FAT32.h"
+#include "GUI.h"
 BOOTSECTORFAT32 bs32;
-POINT point;
 
 int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
 {
@@ -69,31 +69,6 @@ int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
     CloseHandle(device);   
     return 0;
 }
-
-int buffToInteger(byte* buffer)
-{
-    //int a = static_cast<int>(static_cast<unsigned char>(buffer[3]) << 24 |
-    //    static_cast<unsigned char>(buffer[2]) << 16 |
-    //    static_cast<unsigned char>(buffer[1]) << 8 |
-    //    static_cast<unsigned char>(buffer[0]));
-    //return a;
-
-    int Int32 = 0;
-    Int32 = (Int32 << 8) + buffer[3];
-    Int32 = (Int32 << 8) + buffer[2];
-    Int32 = (Int32 << 8) + buffer[1];
-    Int32 = (Int32 << 8) + buffer[0];
-    return Int32;
-}
-
-unsigned int reversedBytes(uint8_t* byte) {
-    unsigned int result = 0;
-    for (int i = sizeof(byte) - 1; i >= 0; i--) 
-        result = (result << 8) | byte[i];
-    
-    return result;
-}
-
 
 int ReadRDETFAT32(LPCWSTR drive)
 {
@@ -207,53 +182,52 @@ int ReadRDETFAT32(LPCWSTR drive)
             }
 
             if (root[i].FileAttributes == 0x01)
-                printf("\t<Read Only>\n");
+                printf("    <Read Only>\n");
             if (root[i].FileAttributes == 0x02)
-                printf("\t<Hidden>\n");
+                printf("   <Hidden>\n");
             if (root[i].FileAttributes == 0x04)
-                printf("\t<System>\n");
+                printf("    <System>\n");
             if (root[i].FileAttributes == 0x08)
-                printf("\t<Volume Label>\n");
+                printf("    <Volume Label>\n");
             if (root[i].FileAttributes == 0x10)
-                printf("\t<Directory>\n");
+                printf("   <Directory>\n");
             if (root[i].FileAttributes == 0x20)
-                printf("\t<Archive>\n");
+                printf("    <Archive>\n");
 
             WORD nYear = (root[i].CreatedDate >> 9);
             WORD nMonth = (root[i].CreatedDate << 7);
             nMonth = nMonth >> 12;
             WORD nDay = (root[i].CreatedDate << 11);
             nDay = nDay >> 11;
-            printf("\tCreate Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            printf("Create Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
 
             nYear = (root[i].LastModifiedDate >> 9);
             nMonth = (root[i].LastModifiedDate << 7);
             nMonth = nMonth >> 12;
             nDay = (root[i].LastModifiedDate << 11);
             nDay = nDay >> 11;
-            printf("\tModification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            printf("Modification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
 
             WORD nHour = (root[i].LastModifiedHour >> 11);
             WORD nMin = (root[i].LastModifiedHour << 5);
             nMin = nMin >> 10;
             WORD nSec = (root[i].LastModifiedHour << 11);
             nSec = nSec >> 11;
-            printf("\tModification Hours: %02d:%02d:%02d\n", nHour, nMin, nSec/2);
+            printf("Modification Hours: %02d:%02d:%02d\n", nHour, nMin, nSec/2);
 
             nYear = (root[i].LastAccessedDate >> 9);
             nMonth = (root[i].LastAccessedDate << 7);
             nMonth = nMonth >> 12;
             nDay = (root[i].LastAccessedDate << 11);
             nDay = nDay >> 11;
-            printf("\tAccessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            printf("Accessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
             
             DWORD clusterNumber = root[i].FirstClusterHigh << 16;
             clusterNumber |= root[i].FirstClusterLow;
-            std::cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << std::endl;
-
+            std::cout << "Size: " << root[i].FileSize << " bytes" << "   " << clusterNumber << " cluster\n" << std::endl;
 
             if (root[i].FileAttributes == 0x10) {
-                ReadSRDETFAT32(drive, device, clusterNumber, 2);
+                ReadSRDETFAT32(drive, device, clusterNumber, 0);
                 std::cout << std::endl;
             }
 
@@ -343,14 +317,12 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, int depth) {
 
             }
 
-            GetCursorPos(&point);
-            SetCursorPos(point.x + 5 * depth, point.y + 1);
+            gotoxy(wherex() + 5 * depth, wherey() + 1);
             std::cout << "|___  ";
 
-            if (SubName != "") {
+            if (SubName != "") 
                 std::cout << SubName;
-                SubName = "";
-            }
+   
             else {
                 std::string tmp = "";
                 for (int j = 0; j < 8; j++) {
@@ -368,56 +340,70 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, int depth) {
             }
 
             if (root[i].FileAttributes == 0x01)
-                printf("\t<Read Only>\n");
+                printf("    <Read Only>\n");
             if (root[i].FileAttributes == 0x02)
-                printf("\t<Hidden>\n");
+                printf("    <Hidden>\n");
             if (root[i].FileAttributes == 0x04)
-                printf("\t<System>\n");
+                printf("    <System>\n");
             if (root[i].FileAttributes == 0x08)
-                printf("\t<Volume Label>\n");
+                printf("    <Volume Label>\n");
             if (root[i].FileAttributes == 0x10)
-                printf("\t<Directory>\n");
+                printf("    <Directory>\n");
             if (root[i].FileAttributes == 0x20)
-                printf("\t<Archive>\n");
+                printf("    <Archive>\n");
+
+            gotoxy(wherex() + 5 * depth + 6, wherey());
 
             WORD nYear = (root[i].CreatedDate >> 9);
             WORD nMonth = (root[i].CreatedDate << 7);
             nMonth = nMonth >> 12;
             WORD nDay = (root[i].CreatedDate << 11);
             nDay = nDay >> 11;
-            printf("\tCreate Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            printf("Create Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+
+            gotoxy(wherex() + 5 * depth + 6, wherey());
 
             nYear = (root[i].LastModifiedDate >> 9);
             nMonth = (root[i].LastModifiedDate << 7);
             nMonth = nMonth >> 12;
             nDay = (root[i].LastModifiedDate << 11);
             nDay = nDay >> 11;
-            printf("\tModification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            printf("Modification Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+
+            gotoxy(wherex() + 5 * depth + 6, wherey());
 
             WORD nHour = (root[i].LastModifiedHour >> 11);
             WORD nMin = (root[i].LastModifiedHour << 5);
             nMin = nMin >> 10;
             WORD nSec = (root[i].LastModifiedHour << 11);
             nSec = nSec >> 11;
-            printf("\tModification Hours: %02d:%02d:%02d\n", nHour, nMin, nSec / 2);
+            printf("Modification Hours: %02d:%02d:%02d\n", nHour, nMin, nSec / 2);
+
+            gotoxy(wherex() + 5 * depth + 6, wherey());
 
             nYear = (root[i].LastAccessedDate >> 9);
             nMonth = (root[i].LastAccessedDate << 7);
             nMonth = nMonth >> 12;
             nDay = (root[i].LastAccessedDate << 11);
             nDay = nDay >> 11;
-            printf("\tAccessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+            printf("Accessed Date: %d/%d/%d\n", nDay, nMonth, (nYear + 1980));
+
+            gotoxy(wherex() + 5 * depth + 6, wherey());
 
             DWORD clusterNumber = root[i].FirstClusterHigh << 16;
             clusterNumber |= root[i].FirstClusterLow;
-            std::cout << "\t" << root[i].FileSize << "bytes\n" << "\t" << clusterNumber << "cluster\n" << std::endl;
+            std::cout << "Size: " << root[i].FileSize << " bytes" << "   " << clusterNumber << " cluster" << std::endl;
 
             if (root[i].FileAttributes == 0x10) {
-                GetCursorPos(&point);
-                SetCursorPos(point.x + 5 * depth, point.y + 1);
-                std::cout << "|___   ";
                 ReadSRDETFAT32(drive, CopyDevice, clusterNumber, depth + 1);
             }
+
+            if (SubName != "") {
+                if (SubName.length() - 4 >= 0 && SubName.substr(SubName.length() - 3) == "txt")
+                    ReadTextFile(drive, device, clusterNumber);
+            }
+
+            SubName = "";
         }
 
         if (breakPoint == false) {

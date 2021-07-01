@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
-#include <string.h>
+#include <string>
 #include <iomanip>
 #include <ctype.h>
 
@@ -77,9 +77,6 @@ int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512]);
 int ReadRDETFAT32(LPCWSTR drive);
 int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, int depth);
 int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster);
-int buffToInteger(byte* buffer);
-unsigned int reversedBytes(uint8_t* byte);
-
 
 
 #endif

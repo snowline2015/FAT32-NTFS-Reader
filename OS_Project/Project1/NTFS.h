@@ -109,10 +109,10 @@ struct File {
     char* name;
 };
 
-extern File files;
 extern DWORD bytesAccessed;
 extern HANDLE drive;
-extern BOOTSECTORNTFS ntfs;
+extern BOOTSECTORNTFS ntfs; 
+extern BOOTSECTORNTFS bootSector;
 
 #define MFT_FILE_SIZE (1024)
 extern uint8_t mftFile[MFT_FILE_SIZE];
@@ -123,6 +123,6 @@ extern uint8_t mftBuffer[MFT_FILES_PER_BUFFER * MFT_FILE_SIZE];
 int ReadBootSectorNTFS(LPCWSTR  drive, int readPoint, BYTE sector[512]);
 char* DuplicateName(wchar_t* name, size_t nameLength);
 void Read(void* buffer, uint64_t from, uint64_t count);
-int NTFSParse(LPCWSTR  drive);
+int NTFSParse(LPCWSTR DriveLabel);
 
 #endif

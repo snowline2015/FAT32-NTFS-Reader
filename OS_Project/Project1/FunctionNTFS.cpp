@@ -1,11 +1,10 @@
 #include "NTFS.h"
 
-//File* files;
-//DWORD bytesAccessed;
-//HANDLE drive;
-BOOTSECTORNTFS ntfs;
-//uint8_t mftFile[MFT_FILE_SIZE];
-//uint8_t mftBuffer[MFT_FILES_PER_BUFFER * MFT_FILE_SIZE];
+DWORD bytesAccessed;
+HANDLE drive;
+BOOTSECTORNTFS ntfs, bootSector;
+uint8_t mftFile[MFT_FILE_SIZE];
+uint8_t mftBuffer[MFT_FILES_PER_BUFFER * MFT_FILE_SIZE];
 
 int ReadBootSectorNTFS(LPCWSTR  drive, int readPoint, BYTE sector[512])
 {
@@ -68,7 +67,7 @@ int ReadBootSectorNTFS(LPCWSTR  drive, int readPoint, BYTE sector[512])
     CloseHandle(device);
     return 0;
 }
-/*
+
 char* DuplicateName(wchar_t* name, size_t nameLength) {
     static char* allocationBlock = nullptr;
     static size_t bytesRemaining = 0;
@@ -97,11 +96,15 @@ void Read(void* buffer, uint64_t from, uint64_t count) {
 }
 
 int NTFSParse(LPCWSTR DriveLabel) {
+    File* files;
+
     drive = CreateFile(DriveLabel, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 
-    uint64_t bytesPerCluster = ntfs.BytePerSector * ntfs.SectorPerCluster;
+    Read(&bootSector, 0, 512);
 
-    Read(&mftFile, ntfs.$MFTCluster * bytesPerCluster, MFT_FILE_SIZE);
+    uint64_t bytesPerCluster = bootSector.BytePerSector * bootSector.SectorPerCluster;
+
+    Read(&mftFile, bootSector.$MFTCluster * bytesPerCluster, MFT_FILE_SIZE);
 
     FileRecordHeader* fileRecord = (FileRecordHeader*)mftFile;
     AttributeHeader* attribute = (AttributeHeader*)(mftFile + fileRecord->firstAttributeOffset);
@@ -204,4 +207,3 @@ int NTFSParse(LPCWSTR DriveLabel) {
 
     return 0;
 }
-*/
