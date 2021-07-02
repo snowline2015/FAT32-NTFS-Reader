@@ -2,39 +2,36 @@
 #define NTFS_H
 
 #include "FAT32.h"
-#include "../Project1/Sublib/stb_ds.h"
-#include <assert.h>
-#include <stdint.h>
 
 struct BOOTSECTORNTFS {
-    BYTE     JUMP[3];
-    BYTE     OEM[8];
+    uint8_t  JUMP[3];
+    char     OEM[8];
 
     // BPB
-    WORD     BytePerSector;
-    BYTE     SectorPerCluster;
-    WORD     ReservedSector;
-    BYTE     Unknown1[3];
-    WORD     Unknown2;
-    BYTE     MediaDescriptor;
-    WORD     Unknown3;
-    WORD     SectorPerTrack;
-    WORD     HeadPerDisk;
-    DWORD    NumberHiddenSectors;
-    DWORD    Unknown4;
+    uint16_t    BytePerSector;
+    uint8_t     SectorPerCluster;
+    uint16_t    ReservedSector;
+    uint8_t     Unknown1[3];
+    uint16_t    Unknown2;
+    uint8_t     MediaDescriptor;
+    uint16_t    Unknown3;
+    uint16_t    SectorPerTrack;
+    uint16_t    HeadPerDisk;
+    uint32_t    NumberHiddenSectors;
+    uint32_t    Unknown4;
 
     // Extended BPB
-    DWORD   Unknown5;
-    uint64_t    TotalSectors;
-    uint64_t    $MFTCluster;
-    uint64_t    $MFTMirrCluster;
-    DWORD   ClustersPerFileRecordSegment;      // > 0 -> cluster || < 0 : Ex: -10 -> 2^10 bytes
-    DWORD   ClustersPerIndexBuffer;            // Like above           
-    BYTE    VolumeSerial[8];
-    DWORD   Checksum;
+    uint32_t   Unknown5;
+    uint64_t   TotalSectors;
+    uint64_t   $MFTCluster;
+    uint64_t   $MFTMirrCluster;
+    uint32_t   ClustersPerFileRecordSegment;      // > 0 -> cluster || < 0 : Ex: -10 -> 2^10 uint8_ts
+    uint32_t   ClustersPerIndexBuffer;            // Like above           
+    uint64_t   VolumeSerial;
+    uint32_t   Checksum;
 
-    BYTE    Bootstrap[426];
-    WORD    EndOfSectorMarker;
+    uint8_t    Bootstrap[426];
+    uint16_t   EndOfSectorMarker;
 };
 
 struct FileRecordHeader {
@@ -105,22 +102,13 @@ struct RunHeader {
 };
 
 struct File {
-    uint64_t    parent;
+    uint64_t parent;
     char* name;
 };
 
-extern DWORD bytesAccessed;
-extern HANDLE drive;
 extern BOOTSECTORNTFS ntfs; 
-extern BOOTSECTORNTFS bootSector;
 
-#define MFT_FILE_SIZE (1024)
-extern uint8_t mftFile[MFT_FILE_SIZE];
-
-#define MFT_FILES_PER_BUFFER (65536)
-extern uint8_t mftBuffer[MFT_FILES_PER_BUFFER * MFT_FILE_SIZE];
-
-int ReadBootSectorNTFS(LPCWSTR  drive, int readPoint, BYTE sector[512]);
+int ReadBootSectorNTFS(LPCWSTR driveLabel, int readPoint, uint8_t sector[512]);
 char* DuplicateName(wchar_t* name, size_t nameLength);
 void Read(void* buffer, uint64_t from, uint64_t count);
 int NTFSParse(LPCWSTR DriveLabel);

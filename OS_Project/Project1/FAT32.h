@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
-#include <ctype.h>
+#include <stringapiset.h>
 
 struct BOOTSECTORFAT32
 {
@@ -76,6 +76,10 @@ extern BOOTSECTORFAT32 bs32;
 int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512]);
 int ReadRDETFAT32(LPCWSTR drive);
 int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, int depth);
+
+unsigned int reversedWORD(WORD buffer);
+unsigned int reversedDWORD(DWORD buffer);
+
 int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster);
 
 

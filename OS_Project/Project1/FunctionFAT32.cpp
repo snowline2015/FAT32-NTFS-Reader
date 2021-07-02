@@ -93,9 +93,9 @@ int ReadRDETFAT32(LPCWSTR drive)
     }
 
     // Read FAT Table
-    int FATSize = bs32.SectorPerFat32 * bs32.BytePerSector;
-    DWORD* FATTable = new DWORD[FATSize];
-    SetFilePointer(device, bs32.ReservedSector * bs32.BytePerSector, NULL, FILE_BEGIN);
+    int FATSize = reversedDWORD(bs32.SectorPerFat32) * reversedWORD(bs32.BytePerSector);
+    BYTE* FATTable = new BYTE[FATSize];
+    SetFilePointer(device, reversedWORD(bs32.ReservedSector) * reversedWORD(bs32.BytePerSector), NULL, FILE_BEGIN);
     if (!ReadFile(device, FATTable, FATSize, &bytesRead, 0))
     {
         printf("ReadFile: %u\n", GetLastError());
@@ -103,7 +103,7 @@ int ReadRDETFAT32(LPCWSTR drive)
     }
 
     //// SB + SF * NF
-    ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32;
+    ULONG distance = reversedWORD(bs32.ReservedSector) + bs32.FatNum * reversedDWORD(bs32.SectorPerFat32);
     distance *= bs32.BytePerSector; // convert to bytes
 
     Start:
@@ -178,7 +178,7 @@ int ReadRDETFAT32(LPCWSTR drive)
                         tmp += root[i].FileName[j];
                     }
                 }
-
+                SubName = tmp;
             }
 
             if (root[i].FileAttributes == 0x01)
@@ -232,7 +232,8 @@ int ReadRDETFAT32(LPCWSTR drive)
             }
 
             if (SubName != "") {
-                if (SubName.length() - 4 >= 0 && SubName.substr(SubName.length() - 3) == "txt")
+                if (SubName.length() - 4 >= 0 && 
+                    (SubName.substr(SubName.length() - 3) == "txt" || SubName.substr(SubName.length() - 3) == "TXT"))
                     ReadTextFile(drive, device, clusterNumber);
             }
 
@@ -264,7 +265,7 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, int depth) {
     Start:
     SetFilePointer(CopyDevice, distance, NULL, FILE_BEGIN);
 
-    int clusterSize = bs32.BytePerSector * bs32.SectorPerCluster;   // cluster size 
+    int clusterSize = reversedWORD(bs32.BytePerSector) * bs32.SectorPerCluster;   // cluster size 
     int NumberOfEntries = clusterSize / sizeof(RDETFAT32);  // number of record inside cluster
     RDETFAT32* root = new RDETFAT32[NumberOfEntries];   // descripe the partition
 
@@ -337,6 +338,7 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, int depth) {
                         tmp += root[i].FileName[j];
                     }
                 }
+                SubName = tmp;
             }
 
             if (root[i].FileAttributes == 0x01)
@@ -399,7 +401,8 @@ int ReadSRDETFAT32(LPCWSTR drive, HANDLE device, DWORD cluster, int depth) {
             }
 
             if (SubName != "") {
-                if (SubName.length() - 4 >= 0 && SubName.substr(SubName.length() - 3) == "txt")
+                if (SubName.length() - 4 >= 0 && 
+                    (SubName.substr(SubName.length() - 3) == "txt" || SubName.substr(SubName.length() - 3) == "TXT"))
                     ReadTextFile(drive, device, clusterNumber);
             }
 
@@ -428,6 +431,8 @@ int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster) {
     ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32 + (cluster - 2) * bs32.SectorPerCluster;
     distance *= bs32.BytePerSector;
 
+    std::cout << "\nContent:" << std::endl;
+
     ok:
     SetFilePointer(CopyDevice, distance, NULL, FILE_BEGIN);
 
@@ -440,6 +445,7 @@ int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster) {
         for (int i = 0; i < 512; i++) {
             if (sector[i] == '\0') break;
             std::cout << sector[i];
+            
             if (i == 511 && sector[i] != '\0') {
                 memset(sector, 0, 512);
                 distance += 512;
@@ -449,4 +455,26 @@ int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster) {
     }
 
     return 0;
+}
+
+unsigned int reversedWORD(WORD buffer) {
+    unsigned int result = 0;
+    BYTE arr[2];
+    memcpy(arr, &buffer, 2);
+
+    result = (result << 8) | arr[1];
+    result = (result << 8) | arr[0];
+
+    return result;
+}
+
+unsigned int reversedDWORD(DWORD buffer) {
+    unsigned int result = 0;
+    BYTE arr[4];
+    memcpy(arr, &buffer, 4);
+
+    for (int i = 3; i >= 0; i--)
+        result = (result << 8) | arr[i];
+
+    return result;
 }

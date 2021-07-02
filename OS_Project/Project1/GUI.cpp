@@ -43,26 +43,3 @@ std::wstring s2ws(const std::string& s)
     return r;
 }
 
-int buffToInteger(byte* buffer)
-{
-    //int a = static_cast<int>(static_cast<unsigned char>(buffer[3]) << 24 |
-    //    static_cast<unsigned char>(buffer[2]) << 16 |
-    //    static_cast<unsigned char>(buffer[1]) << 8 |
-    //    static_cast<unsigned char>(buffer[0]));
-    //return a;
-
-    int Int32 = 0;
-    Int32 = (Int32 << 8) + buffer[3];
-    Int32 = (Int32 << 8) + buffer[2];
-    Int32 = (Int32 << 8) + buffer[1];
-    Int32 = (Int32 << 8) + buffer[0];
-    return Int32;
-}
-
-unsigned int reversedBytes(uint8_t* byte) {
-    unsigned int result = 0;
-    for (int i = sizeof(byte) - 1; i >= 0; i--)
-        result = (result << 8) | byte[i];
-
-    return result;
-}
