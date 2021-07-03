@@ -427,13 +427,12 @@ int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster) {
     DWORD bytesRead;
     BYTE sector[512];
     
-    
     ULONG distance = bs32.ReservedSector + bs32.FatNum * bs32.SectorPerFat32 + (cluster - 2) * bs32.SectorPerCluster;
     distance *= bs32.BytePerSector;
 
     std::cout << "\nContent:" << std::endl;
 
-    ok:
+    Start:
     SetFilePointer(CopyDevice, distance, NULL, FILE_BEGIN);
 
     if (!ReadFile(CopyDevice, sector, 512, &bytesRead, 0))
@@ -445,11 +444,10 @@ int ReadTextFile(LPCWSTR drive, HANDLE device, DWORD cluster) {
         for (int i = 0; i < 512; i++) {
             if (sector[i] == '\0') break;
             std::cout << sector[i];
-            
             if (i == 511 && sector[i] != '\0') {
                 memset(sector, 0, 512);
                 distance += 512;
-                goto ok;
+                goto Start;
             }
         }
     }

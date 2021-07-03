@@ -1,11 +1,17 @@
 #ifndef NTFS_H
 #define NTFS_H
+#define NDEBUG
 
-#include "FAT32.h"
+#include <stdio.h>
+#include <assert.h>
+#include <stdint.h>
+#include <windows.h>
+
+#pragma pack(push,1)
 
 struct BOOTSECTORNTFS {
-    uint8_t  JUMP[3];
-    char     OEM[8];
+    uint8_t     JUMP[3];
+    char        OEM[8];
 
     // BPB
     uint16_t    BytePerSector;
@@ -21,21 +27,23 @@ struct BOOTSECTORNTFS {
     uint32_t    Unknown4;
 
     // Extended BPB
-    uint32_t   Unknown5;
-    uint64_t   TotalSectors;
-    uint64_t   $MFTCluster;
-    uint64_t   $MFTMirrCluster;
-    uint32_t   ClustersPerFileRecordSegment;      // > 0 -> cluster || < 0 : Ex: -10 -> 2^10 uint8_ts
-    uint32_t   ClustersPerIndexBuffer;            // Like above           
-    uint64_t   VolumeSerial;
-    uint32_t   Checksum;
+    uint32_t    Unknown5;
+    uint64_t    TotalSectors;
+    uint64_t    $MFTCluster;
+    uint64_t    $MFTMirrCluster;
+    uint8_t     BytesPerFileRecordSegment;      // > 0 -> cluster || < 0 : Ex: -10 -> 2^10 bytes = 1024 bytes
+    uint8_t     Unknown6[3];
+    uint8_t     BytesPerIndexBuffer;            // Like above           
+    uint8_t     Unknown7[3];
+    uint64_t    VolumeSerial;
+    uint32_t    Checksum;
 
-    uint8_t    Bootstrap[426];
-    uint16_t   EndOfSectorMarker;
+    uint8_t     Bootstrap[426];
+    uint16_t    EndOfSectorMarker;
 };
 
 struct FileRecordHeader {
-    uint32_t    magic;
+    uint32_t    signature;
     uint16_t    updateSequenceOffset;
     uint16_t    updateSequenceSize;
     uint64_t    logSequence;
@@ -101,16 +109,25 @@ struct RunHeader {
     uint8_t     offsetFieldBytes : 4;
 };
 
+#pragma pack(pop)
+
 struct File {
     uint64_t parent;
     char* name;
 };
 
-extern BOOTSECTORNTFS ntfs; 
+extern File* files;
 
-int ReadBootSectorNTFS(LPCWSTR driveLabel, int readPoint, uint8_t sector[512]);
+extern BOOTSECTORNTFS bootSector;
+
+#define MFT_FILE_SIZE (1024)
+extern uint8_t mftFile[MFT_FILE_SIZE];
+
+#define MFT_FILES_PER_BUFFER (65536)
+extern uint8_t mftBuffer[MFT_FILES_PER_BUFFER * MFT_FILE_SIZE];
+
+int Read(LPCWSTR driveLabel, void* buffer, uint64_t from, uint64_t count);
 char* DuplicateName(wchar_t* name, size_t nameLength);
-void Read(void* buffer, uint64_t from, uint64_t count);
 int NTFSParse(LPCWSTR DriveLabel);
 
 #endif

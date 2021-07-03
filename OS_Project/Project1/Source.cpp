@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 
     else {
         //ReadBootSectorNTFS(s2ws("\\\\.\\" + drive + ":").c_str(), 0, sector);
-        //NTFSParse(s2ws("\\\\.\\" + drive + ":").c_str());
+        NTFSParse(s2ws("\\\\.\\" + drive + ":").c_str());
     }
 
     return 0;

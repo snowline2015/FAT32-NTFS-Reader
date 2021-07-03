@@ -4,10 +4,10 @@
 #include <io.h>
 #include <fcntl.h>
 
+
 void gotoxy(int x, int y);
 int wherex();
 int wherey();
 std::wstring s2ws(const std::string& s);
-
 
 #endif
