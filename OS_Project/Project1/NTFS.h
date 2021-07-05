@@ -6,6 +6,10 @@
 #include <assert.h>
 #include <stdint.h>
 #include <windows.h>
+#include <string>
+#include "atlstr.h"
+#include "atlbase.h"
+#include "comutil.h"
 
 #pragma pack(push,1)
 

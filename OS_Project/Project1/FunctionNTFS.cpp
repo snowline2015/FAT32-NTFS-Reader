@@ -1,7 +1,10 @@
 #include "NTFS.h"
+#include "GUI.h"
 
 #define STB_DS_IMPLEMENTATION
 #include "./Sublib/stb_ds.h"
+
+//#include "NTFS-Parser-Lib-master/NTFS.h"
 
 File* files = 0;
 
@@ -114,7 +117,7 @@ int NTFSParse(LPCWSTR DriveLabel) {
         uint64_t positionInBlock = 0;
 
         while (filesRemaining) {
-            fprintf(stderr, "%d%% ", (int)(recordsProcessed * 100 / approximateRecordCount));
+            //fprintf(stderr, "%d%% ", (int)(recordsProcessed * 100 / approximateRecordCount));
 
             uint64_t filesToLoad = MFT_FILES_PER_BUFFER;
             if (filesRemaining < MFT_FILES_PER_BUFFER) filesToLoad = filesRemaining;
@@ -143,6 +146,8 @@ int NTFSParse(LPCWSTR DriveLabel) {
                             file.parent = fileNameAttribute->parentRecordNumber;
                             file.name = DuplicateName(fileNameAttribute->fileName, fileNameAttribute->fileNameLength);
 
+                            std::cout << file.name << std::endl;
+
                             uint64_t oldLength = arrlenu(files);
 
                             if (fileRecord->recordNumber >= oldLength) {
@@ -163,7 +168,8 @@ int NTFSParse(LPCWSTR DriveLabel) {
         }
     }
 
-    fprintf(stderr, "\nFound %lld files.\n", arrlen(files));
+    //fprintf(stderr, "\nFound %lld files.\n", arrlen(files));
 
     return 0;
 }
+

@@ -1,5 +1,6 @@
 #include "FAT32.h"
 #include "GUI.h"
+
 BOOTSECTORFAT32 bs32;
 
 int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
