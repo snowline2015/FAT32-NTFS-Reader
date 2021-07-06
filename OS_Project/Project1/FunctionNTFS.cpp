@@ -4,8 +4,6 @@
 #define STB_DS_IMPLEMENTATION
 #include "./Sublib/stb_ds.h"
 
-//#include "NTFS-Parser-Lib-master/NTFS.h"
-
 File* files = 0;
 
 BOOTSECTORNTFS bootSector;
@@ -146,7 +144,8 @@ int NTFSParse(LPCWSTR DriveLabel) {
                             file.parent = fileNameAttribute->parentRecordNumber;
                             file.name = DuplicateName(fileNameAttribute->fileName, fileNameAttribute->fileNameLength);
 
-                            std::cout << file.name << std::endl;
+                            if (file.name[0] != '$')
+                                std::cout << file.name << std::endl;
 
                             uint64_t oldLength = arrlenu(files);
 

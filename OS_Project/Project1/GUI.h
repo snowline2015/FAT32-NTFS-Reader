@@ -9,6 +9,5 @@ void gotoxy(int x, int y);
 int wherex();
 int wherey();
 std::wstring s2ws(const std::string& s);
-wchar_t* char2wchar(const char* cchar);
 
 #endif
