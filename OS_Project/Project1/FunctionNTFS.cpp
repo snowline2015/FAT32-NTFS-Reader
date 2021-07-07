@@ -144,7 +144,7 @@ int NTFSParse(LPCWSTR DriveLabel) {
                             file.parent = fileNameAttribute->parentRecordNumber;
                             file.name = DuplicateName(fileNameAttribute->fileName, fileNameAttribute->fileNameLength);
 
-                            if (file.name[0] != '$') {
+                            if (file.name[0] != '$' && file.name[0] != '.') {
                                 std::cout << file.name << std::endl;
                                 SYSTEMTIME stSystemTime;
                                 FILETIME fileTime;
@@ -152,16 +152,16 @@ int NTFSParse(LPCWSTR DriveLabel) {
                                 fileTime.dwLowDateTime = fileNameAttribute->creationTime & 0xFFFFFFFF;
                                 if (FileTimeToSystemTime(&fileTime, &stSystemTime))
                                 {
-                                    printf("Creation Time: %d/%d/%d, %d:%02d\n", 
-                                        stSystemTime.wDay, stSystemTime.wMonth, stSystemTime.wYear, 24-stSystemTime.wHour, stSystemTime.wMinute);
+                                    std::cout << "Creation Time: " << dayOfWeek(stSystemTime.wDayOfWeek);
+                                    printf(", %d/%d/%d, %d:%02d:%d\n", stSystemTime.wDay, stSystemTime.wMonth, stSystemTime.wYear, 24 - stSystemTime.wHour, stSystemTime.wMinute, stSystemTime.wMilliseconds);
                                 }
 
                                 fileTime.dwHighDateTime = fileNameAttribute->modificationTime >> 32;
                                 fileTime.dwLowDateTime = fileNameAttribute->modificationTime & 0xFFFFFFFF;
                                 if (FileTimeToSystemTime(&fileTime, &stSystemTime))
                                 {
-                                    printf("Modification Time: %d/%d/%d, %d:%02d\n", 
-                                        stSystemTime.wDay, stSystemTime.wMonth, stSystemTime.wYear, 24-stSystemTime.wHour, stSystemTime.wMinute);
+                                    std::cout << "Modification Time: " << dayOfWeek(stSystemTime.wDayOfWeek);
+                                    printf(", %d/%d/%d, %d:%02d:%d\n", stSystemTime.wDay, stSystemTime.wMonth, stSystemTime.wYear, 24 - stSystemTime.wHour, stSystemTime.wMinute, stSystemTime.wMilliseconds);
                                 }
 
                                 std::cout << "Size on disk: " << fileNameAttribute->allocatedSize << " bytes\n";
