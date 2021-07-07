@@ -19,7 +19,7 @@ int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
 
     if (device == INVALID_HANDLE_VALUE) // Open Error
     {
-        //printf("CreateFile: %u\n", GetLastError());
+        printf("CreateFile: %u\n", GetLastError());
         return 1;
     }
 
@@ -27,7 +27,7 @@ int ReadBootSectorFAT32(LPCWSTR  drive, int readPoint, BYTE sector[512])
 
     if (!ReadFile(device, sector, 512, &bytesRead, NULL))
     {
-        //printf("ReadFile: %u\n", GetLastError());
+        printf("ReadFile: %u\n", GetLastError());
         return 1;
     }
     else
