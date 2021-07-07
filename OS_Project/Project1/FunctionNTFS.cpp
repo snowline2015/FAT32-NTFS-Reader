@@ -144,8 +144,29 @@ int NTFSParse(LPCWSTR DriveLabel) {
                             file.parent = fileNameAttribute->parentRecordNumber;
                             file.name = DuplicateName(fileNameAttribute->fileName, fileNameAttribute->fileNameLength);
 
-                            if (file.name[0] != '$')
+                            if (file.name[0] != '$') {
                                 std::cout << file.name << std::endl;
+                                SYSTEMTIME stSystemTime;
+                                FILETIME fileTime;
+                                fileTime.dwHighDateTime = fileNameAttribute->creationTime >> 32;
+                                fileTime.dwLowDateTime = fileNameAttribute->creationTime & 0xFFFFFFFF;
+                                if (FileTimeToSystemTime(&fileTime, &stSystemTime))
+                                {
+                                    printf("Creation Time: %d/%d/%d, %d:%02d\n", 
+                                        stSystemTime.wDay, stSystemTime.wMonth, stSystemTime.wYear, 24-stSystemTime.wHour, stSystemTime.wMinute);
+                                }
+
+                                fileTime.dwHighDateTime = fileNameAttribute->modificationTime >> 32;
+                                fileTime.dwLowDateTime = fileNameAttribute->modificationTime & 0xFFFFFFFF;
+                                if (FileTimeToSystemTime(&fileTime, &stSystemTime))
+                                {
+                                    printf("Modification Time: %d/%d/%d, %d:%02d\n", 
+                                        stSystemTime.wDay, stSystemTime.wMonth, stSystemTime.wYear, 24-stSystemTime.wHour, stSystemTime.wMinute);
+                                }
+
+                                std::cout << "Size on disk: " << fileNameAttribute->allocatedSize << " bytes\n";
+                                std::cout << std::endl;
+                            }
 
                             uint64_t oldLength = arrlenu(files);
 

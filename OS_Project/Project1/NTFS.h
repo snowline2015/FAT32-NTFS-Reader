@@ -2,14 +2,18 @@
 #define NTFS_H
 #define NDEBUG
 
+#include <iostream>
 #include <stdio.h>
 #include <assert.h>
 #include <stdint.h>
 #include <windows.h>
 #include <string>
+#include <chrono>
 #include "atlstr.h"
 #include "atlbase.h"
 #include "comutil.h"
+
+using namespace std::chrono;
 
 #pragma pack(push,1)
 
